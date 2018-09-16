@@ -1,2 +1,2 @@
 # LabCompila
-Desenvolvimento de Compilador para a linguagem Cyaneto
+Desenvolvimento de Compilador para a linguagem Cianeto
