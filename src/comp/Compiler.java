@@ -272,10 +272,12 @@ public class Compiler {
 			if ( lexer.token == Token.ID && lexer.getStringValue().equals("Out") ) {
 				writeStat();
 			}
+			else if ( lexer.token == Token.ID && lexer.getStringValue().equals("In") ) {
+				readExpr();
+			}
 			else {
 				expr();
 			}
-
 		}
 		if ( checkSemiColon ) {
 			check(Token.SEMICOLON, "';' expected");
@@ -355,13 +357,22 @@ public class Compiler {
 	/**
 
 	 */
-	private void writeStat() {
+	private void writeStat() { // rever porque não checa se é mesmo print ou println
 		next();
 		check(Token.DOT, "a '.' was expected after 'Out'");
 		next();
-		check(Token.IDCOLON, "'print:' or 'println:' was expected after 'Out.'");
+		if(lexer.token != Token.PRINT && lexer.token != Token.PRINTLN) 
+			error("'print:' or 'println:' was expected after 'Out.'");
 		String printName = lexer.getStringValue();
 		expr();
+	}
+	
+	private void readExpr() {
+		next();
+		check(Token.DOT, "a '.' was expected after 'In'");
+		next();
+		if(lexer.token != Token.READINT && lexer.token != Token.READSTRING)
+			error("'readInt' or 'readString' was expected after 'In.'");
 	}
 
 	private void expr() {
