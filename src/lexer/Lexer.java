@@ -38,12 +38,7 @@ public class Lexer {
 			if ( Character.isAlphabetic(kw.charAt(0)) )
 				keywordsTable.put( s.toString(), s);
 		}
-
-
 	}
-
-
-
 
     public void nextToken() {
         char ch;
@@ -96,16 +91,16 @@ public class Lexer {
                     ident.append(input[tokenPos]);
                     tokenPos++;
                 	stringValue = ident.toString();
-                	token = Token.IDCOLON;
+                	token = Token.IDCOLON; // adiciona id com passagem de parametro
                 }
                 else {
                 	stringValue = ident.toString();
                     // if identStr is in the list of keywords, it is a keyword !
                 	Token value = keywordsTable.get(stringValue);
                 	if ( value == null )
-                		token = Token.ID;
+                		token = Token.ID; // é ID
                 	else
-                		token = value;
+                		token = value; // é keyword
                 }
             }
             else if ( Character.isDigit( ch ) ) {
@@ -124,11 +119,17 @@ public class Lexer {
                 if ( numberValue > MaxValueInteger )
                    error.showError("Number out of limits");
             }
-            else {
+            else { // se não for letra nem numero
                 tokenPos++;
                 switch ( ch ) {
                     case '+' :
-                      token = Token.PLUS;
+                      if(input[tokenPos] == '+') {
+                    	  tokenPos++;
+                    	  token = Token.CONCAT;
+                      }
+                      else {
+                    	  token = Token.PLUS;
+                      }
                       break;
                     case '-' :
                       if ( input[tokenPos] == '>' ) {
@@ -226,14 +227,14 @@ public class Lexer {
                     	break;
                     case '_' :
                       error.showError("'_' cannot start an indentifier");
-                      break;
+                      break; 
                     case '"' :
                        StringBuffer s = new StringBuffer();
                        while ( input[tokenPos] != '\0' && input[tokenPos] != '\n' )
                           if ( input[tokenPos] == '"' )
                              break;
                           else
-                             if ( input[tokenPos] == '\\' ) {
+                             if ( input[tokenPos] == '\\' ) { //backslash
                                 if ( input[tokenPos+1] != '\n' && input[tokenPos+1] != '\0' ) {
                                    s.append(input[tokenPos]);
                                    tokenPos++;
