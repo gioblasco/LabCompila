@@ -16,7 +16,6 @@ public class Comp {
 	}
 
 	public void run( String []args ) {
-
 		File file;
 		if ( args.length < 1 ||  args.length > 2 )  {
 			System.out.println("Usage:\n   comp input");
@@ -27,10 +26,10 @@ public class Comp {
 
 			numSourceFilesWithAnnotCEP = 0;
 			int numSourceFiles = 0;
-			shouldButWereNotList = new ArrayList<>();
-			wereButShouldNotList = new ArrayList<>();
-			wereButWrongLineList = new ArrayList<>();
-			correctList = new ArrayList<>();
+			shouldButWereNotList = new ArrayList<>(); //devia ter dado erro mas n√£o deu
+			wereButShouldNotList = new ArrayList<>(); //deu erro mas n√£o devia ter dado
+			wereButWrongLineList = new ArrayList<>(); //deu erro mas na linha errada
+			correctList = new ArrayList<>(); //erros certos
 			numSourceFilesWithAnnotNCE = 0;
 
 
@@ -150,11 +149,11 @@ public class Comp {
 
 
 		boolean compilerOk = true;
-		report.println("RelatÛrio do Compilador");
+		report.println("Relatorio do Compilador");
 		report.println();
 		if ( numSourceFilesWithAnnotCEP > 0 ) {
 			report.println(this.shouldButWereNotList.size() + " de um total de " + numSourceFilesWithAnnotCEP +
-					" erros que deveriam ser sinalizados n„o o foram (" +
+					" erros que deveriam ser sinalizados nao o foram (" +
 					(int ) (100.0*this.shouldButWereNotList.size()/this.numSourceFilesWithAnnotCEP) + "%)");
 			report.println(this.wereButWrongLineList.size() + " erros foram sinalizados na linha errada ("
 					+ (int ) (100.0*this.wereButWrongLineList.size()/this.numSourceFilesWithAnnotCEP) + "%)");
@@ -174,7 +173,7 @@ public class Comp {
 			else {
 				compilerOk = false;
 				report.println();
-				report.println("Erros que deveriam ser sinalizados mas n„o foram:");
+				report.println("Erros que deveriam ser sinalizados mas nao foram:");
 				report.println();
 				for (String s : this.shouldButWereNotList) {
 					report.println(s);
@@ -183,7 +182,7 @@ public class Comp {
 			}
 
 			if ( wereButWrongLineList.size() == 0 ) {
-				report.println("Um ou mais arquivos de teste tinham erros, mas estes foram sinalizados nos n˙meros de linhas corretos");
+				report.println("Um ou mais arquivos de teste tinham erros, mas estes foram sinalizados nos numeros de linhas corretos");
 			}
 			else {
 				compilerOk = false;
@@ -200,12 +199,12 @@ public class Comp {
 		}
 		if ( numSourceFiles -  numSourceFilesWithAnnotCEP != 0  ) {
 			if ( wereButShouldNotList.size() == 0 ) {
-				report.println("O compilador n„o sinalizou nenhum erro que n„o deveria ter sinalizado");
+				report.println("O compilador nao sinalizou nenhum erro que nao deveria ter sinalizado");
 			}
 			else {
 				compilerOk = false;
 				report.println("######################################################");
-				report.println("Erros que foram sinalizados mas n„o deveriam ter sido:");
+				report.println("Erros que foram sinalizados mas nao deveriam ter sido:");
 				report.println();
 				for (String s : this.wereButShouldNotList) {
 					report.println(s);
@@ -217,12 +216,12 @@ public class Comp {
 		if ( correctList.size() > 0 ) {
 			report.println("######################################################");
 			report.print("Em todos os testes abaixo, o compilador sinalizou o erro na linha correta (quando o teste tinha erros) ");
-			report.print("ou n„o sinalizou o erro (quando o teste N√O tinha erros). Mas È necess·rio conferir se as ");
-			report.print("mensagens emitidas pelo compilador s„o compatÌveis com as mensagens de erro sugeridas pelas chamadas aos ");
+			report.print("ou nao sinalizou o erro (quando o teste NAO tinha erros). Mas eh necessario conferir se as ");
+			report.print("mensagens emitidas pelo compilador sao compativeis com as mensagens de erro sugeridas pelas chamadas aos ");
 			report.print("metaobjetos dos testes. ");
 			report.println();
 			report.println();
-			report.println("A lista abaixo contÈm o nome do arquivo de teste, a mensagem que ele sinalizou e a mensagem sugerida pelo arquivo de teste");
+			report.println("A lista abaixo contem o nome do arquivo de teste, a mensagem que ele sinalizou e a mensagem sugerida pelo arquivo de teste");
 			report.println();
 			for (String s : this.correctList ) {
 				report.println(s);
@@ -231,9 +230,9 @@ public class Comp {
 		}
 		if ( compilerOk ) {
 			if ( numSourceFiles == 1 )
-				report.println("Para o caso de teste que vocÍ utilizou, o compilador est· correto");
+				report.println("Para o caso de teste que voce utilizou, o compilador esta correto");
 			else
-				report.println("Para os casos de teste que vocÍ utilizou, o compilador est· correto");
+				report.println("Para os casos de teste que voce utilizou, o compilador esta correto");
 
 		}
 
@@ -338,8 +337,8 @@ public class Comp {
 				String message = (String ) annot.getParamList().get(2);
 				int lineNumber = (Integer ) annot.getParamList().get(0);
 				if ( ! program.hasCompilationErrors() ) {
-					// there was no compilation error. There should be no call @ce(...)
-					// the source code, through calls to "@ce(...)", informs that
+					// there was no compilation error. There should be no call @cep(...)
+					// the source code, through calls to "@cep(...)", informs that
 					// there are errors
 					String whatToCorrect = "";
 					if ( annot.getParamList().size() >= 4 ) {
@@ -350,7 +349,7 @@ public class Comp {
 							whatToCorrect
 							);
 					if ( foundCE )
-						outError.println("More than one 'ce' metaobject calls in the same source file '" + filename + "'");
+						outError.println("More than one 'cep' metaobject calls in the same source file '" + filename + "'");
 					foundCE = true;
 				}
 				else {
@@ -376,7 +375,7 @@ public class Comp {
 						// that the compiler signalled and the message of the test, given in @ce
 						correctList.add(filename + "\r\n" +
 								"The compiler message was: \"" + compilerMessage + "\"\r\n" +
-								"The 'ce' message is:      \"" + ceMessage + "\"\r\n" );
+								"The 'cep' message is:      \"" + ceMessage + "\"\r\n" );
 					}
 				}
 			}
@@ -393,7 +392,7 @@ public class Comp {
 			}
 		}
 		if ( foundCE && foundNCE )
-			outError.println("Calls to metaobjects 'ce' and 'nce' in the same source code '" + filename + "'");
+			outError.println("Calls to metaobjects 'cep' and 'nce' in the same source code '" + filename + "'");
 
 	}
 
