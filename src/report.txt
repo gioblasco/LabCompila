@@ -1,6 +1,6 @@
-Relat�rio do Compilador
+Relatorio do Compilador
 
-0 de um total de 5 erros que deveriam ser sinalizados n�o o foram (0%)
+0 de um total de 5 erros que deveriam ser sinalizados nao o foram (0%)
 4 erros foram sinalizados na linha errada (80%)
 Todos os erros que deveriam ter sido sinalizados o foram
 ######################################################
@@ -23,12 +23,12 @@ ER-SEM60.ci
     sinalizado: 8, 'class' expected
 
 ######################################################
-Em todos os testes abaixo, o compilador sinalizou o erro na linha correta (quando o teste tinha erros) ou n�o sinalizou o erro (quando o teste N�O tinha erros). Mas � necess�rio conferir se as mensagens emitidas pelo compilador s�o compat�veis com as mensagens de erro sugeridas pelas chamadas aos metaobjetos dos testes. 
+Em todos os testes abaixo, o compilador sinalizou o erro na linha correta (quando o teste tinha erros) ou nao sinalizou o erro (quando o teste NAO tinha erros). Mas eh necessario conferir se as mensagens emitidas pelo compilador sao compativeis com as mensagens de erro sugeridas pelas chamadas aos metaobjetos dos testes. 
 
-A lista abaixo cont�m o nome do arquivo de teste, a mensagem que ele sinalizou e a mensagem sugerida pelo arquivo de teste
+A lista abaixo contem o nome do arquivo de teste, a mensagem que ele sinalizou e a mensagem sugerida pelo arquivo de teste
 
 ER-SEM68.ci
 The compiler message was: "';' expected"
-The 'ce' message is:      "Method 'p' was not found in class 'Program' or its superclasses"
+The 'cep' message is:      "Method 'p' was not found in class 'Program' or its superclasses"
 
 

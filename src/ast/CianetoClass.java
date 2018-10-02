@@ -1,7 +1,11 @@
-package ast;
 /*
- * Krakatoa Class
+ * Integrantes: 
+ * Giovanna Blasco Martin - 620378
+ * Mateus Silva Vasconcelos - 620580
  */
+
+package ast;
+
 public class CianetoClass extends Type {
 
    public CianetoClass( String name ) {
@@ -17,6 +21,6 @@ public class CianetoClass extends Type {
    private CianetoClass superclass;
    // private FieldList fieldList;
    // private MethodList publicMethodList, privateMethodList;
-   // métodos públicos get e set para obter e iniciar as variáveis acima,
-   // entre outros métodos
+   // mï¿½todos pï¿½blicos get e set para obter e iniciar as variï¿½veis acima,
+   // entre outros mï¿½todos
 }

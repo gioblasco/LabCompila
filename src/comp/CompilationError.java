@@ -1,9 +1,15 @@
+/*
+ * Integrantes: 
+ * Giovanna Blasco Martin - 620378
+ * Mateus Silva Vasconcelos - 620580
+ */
+
 package comp;
 
 /**
  * a compilation error
  * 
-   @author José
+   @author Josï¿½
  */
 public class CompilationError {
 
