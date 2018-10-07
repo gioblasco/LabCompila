@@ -1,0 +1,45 @@
+Organização da gramática
+
+Program
+Annot
+AnnotParam -> IntValue | StringValue | Id
+IntValue
+Digit
+ClassDec -> Id
+MemberList
+Qualifier
+Member
+FieldDec
+Type
+BasicType
+IdList
+MethodDec
+FormalParamDec
+ParamDec
+StatementList
+Statement
+AssignExpr
+Expression
+SimpleExpression
+SumSubExpression
+Term
+HighOperator
+LowOperator
+SignalFactor
+Signal
+Factor
+BasicValue
+BooleanValue
+ObjectCreation
+PrimaryExpr
+ExpressionList
+ReadExpr
+Relation
+IfStat
+WhileStat
+ReturnStat
+WriteStat
+RepeatStat
+LocalDec
+AssertStat
+
