@@ -314,7 +314,7 @@ public class Compiler {
 	// StatementList ::= { Statement }
 	private void statementList() {
 		  // only '}' is necessary in this test
-		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END ) {
+		while ( lexer.token != Token.RIGHTCURBRACKET) {
 			statement();
 		}
 	}
@@ -372,22 +372,45 @@ public class Compiler {
 	
 	// Expression ::= SimpleExpression [ Relation SimpleExpression ]
 	private void expr() {
-
+		simpleExpr();
+		// Relation ::= “==” | “<” | “>” | “<=” | “>=” | “! =”
+		if(lexer.token == Token.EQ || lexer.token == Token.LT || lexer.token == Token.GT || lexer.token == Token.LE || lexer.token == Token.GE || lexer.token == Token.NOT) {
+			if(lexer.token == Token.NOT) {
+				next();
+				if(lexer.token != Token.ASSIGN)
+					error("Expecting '=' in expression");
+				else
+					next();
+			}
+			simpleExpr();
+		}
 	}
 	
 	// SimpleExpression ::= SumSubExpression { “++” SumSubExpression }
 	private void simpleExpr() {
-		
+		sumSubExpr();
+		while(lexer.token == Token.CONCAT) {
+			next();
+			sumSubExpr();
+		}
 	}
 	
 	// SumSubExpression ::= Term { LowOperator Term }
 	private void sumSubExpr() {
-		
+		term();
+		while(lexer.token == Token.PLUS || lexer.token == Token.MINUS || lexer.token == Token.OR) {
+			next();
+			term();
+		}
 	}
 	
 	// Term ::= SignalFactor { HighOperator SignalFactor }
 	private void term() {
-		
+		signalFactor();
+		while(lexer.token == Token.MULT || lexer.token == Token.DIV || lexer.token == Token.AND) {
+			next();
+			signalFactor();
+		}
 	}
 	
 	// HighOperator ::= “∗” | “/” | “&&”
@@ -402,7 +425,9 @@ public class Compiler {
 	
 	// SignalFactor ::= [ Signal ] Factor
 	private void signalFactor() {
-		
+		if(lexer.token == Token.PLUS || lexer.token == Token.MINUS)
+			next();
+		factor();
 	}
 	
 	// Signal ::= “+” | “−”
@@ -412,6 +437,7 @@ public class Compiler {
 	
 	// Factor ::= BasicValue | “(” Expression “)” | “!” Factor | “nil” | ObjectCreation | PrimaryExpr
 	private void factor() {
+		
 		
 	}
 	
@@ -466,7 +492,7 @@ public class Compiler {
 		expr();
 		check(Token.LEFTCURBRACKET, "'{' expected after the 'if' expression");
 		next();
-		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END && lexer.token != Token.ELSE ) {
+		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.ELSE ) {
 			statement();
 		}
 		check(Token.RIGHTCURBRACKET, "'}' was expected");
@@ -487,7 +513,7 @@ public class Compiler {
 		expr();
 		check(Token.LEFTCURBRACKET, "'{' expected after the 'while' expression");
 		next();
-		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END ) {
+		while ( lexer.token != Token.RIGHTCURBRACKET) {
 			statement();
 		}
 		check(Token.RIGHTCURBRACKET, "'}' was expected");
@@ -513,7 +539,7 @@ public class Compiler {
 	// RepeatStat ::= “repeat” StatementList “until” Expression
 	private void repeatStat() {
 		next();
-		while ( lexer.token != Token.UNTIL && lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END ) {
+		while ( lexer.token != Token.UNTIL && lexer.token != Token.RIGHTCURBRACKET ) {
 			statement();
 		}
 		check(Token.UNTIL, "'until' was expected");
@@ -522,7 +548,6 @@ public class Compiler {
 	// Não existe originalmente, mas em Statement eh ::= “break” “;”
 	private void breakStat() {
 		next();
-
 	}
 	
 	// LocalDec ::= “var” Type IdList [ “=” Expression ] “;”
