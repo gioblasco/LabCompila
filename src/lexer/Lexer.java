@@ -91,12 +91,7 @@ public class Lexer {
                     ident.append(input[tokenPos]);
                     tokenPos++;
                 	stringValue = ident.toString();
-                	if(stringValue.equals("print:"))
-                		token = Token.PRINT;
-                	else if (stringValue.equals("println:"))
-                		token = Token.PRINTLN;
-                	else
-                		token = Token.IDCOLON; // adiciona id com passagem de parametro
+               		token = Token.IDCOLON; // adiciona id com passagem de parametro
                 }
                 else {
                 	stringValue = ident.toString();

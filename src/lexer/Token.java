@@ -51,8 +51,6 @@ public enum Token {
     PLUS("+"),
     PRIVATE("private"),
     PUBLIC("public"),
-    READINT("readInt"),
-    READSTRING("readString"),
     REPEAT("repeat"),
     RETURN("return"),
     RIGHTCURBRACKET("}"),
@@ -65,9 +63,7 @@ public enum Token {
     UNTIL("until"),
     VAR("var"),
     VOID("void"),
-    WHILE("while"),
-    PRINT("print:"),
-    PRINTLN("println:");
+    WHILE("while");
 
 	Token(String name) {
 		this.name = name;

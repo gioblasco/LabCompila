@@ -457,14 +457,40 @@ public class Compiler {
 	}
 	
 	/* PrimaryExpr ::= “super” “.” IdColon ExpressionList | “super” “.” Id | Id | Id “.” Id |
-	 * Id “.” IdColon ExpressionList | “self” |
+	Id “.” IdColon ExpressionList | “self” |
 	“self” “.” Id |
 	“self” ”.” IdColon ExpressionList |
 	“self” ”.” Id “.” IdColon ExpressionList |
 	“self” ”.” Id “.” Id |
 	ReadExpr */
 	private void primaryExpr() {
-		
+		if (lexer.token == Token.SUPER) {
+			next();
+			if(lexer.token != Token.DOT)
+				error("A '.' was expected after the 'super' keyword");
+			next();
+			if(lexer.token != Token.IDCOLON && lexer.token != Token.ID)
+				error("An idcolon or an id were expected after the super call");
+			else if(lexer.token != Token.IDCOLON) {
+				next();
+				exprList();
+			}			
+		} else if (lexer.token == Token.ID) {
+			next();
+			if(lexer.token == Token.DOT) {
+				next();
+				if(lexer.token != Token.IDCOLON && lexer.token != Token.ID)
+					error("An idcolon or an id were expected after the id call");
+				else if(lexer.token != Token.IDCOLON) {
+					next();
+					exprList();
+				}
+			}
+		} else if (lexer.token == Token.SELF) {
+			
+		} else {
+			readExpr();
+		}	
 	}
 	
 	// ExpressionList ::= Expression { “,” Expression } 
@@ -477,7 +503,7 @@ public class Compiler {
 		next();
 		check(Token.DOT, "a '.' was expected after 'In'");
 		next();
-		if(lexer.token != Token.READINT && lexer.token != Token.READSTRING)
+		if(lexer.getStringValue().equals("readInt") && lexer.getStringValue().equals("readString"))
 			error("'readInt' or 'readString' was expected after 'In.'");
 	}
 	
@@ -530,7 +556,7 @@ public class Compiler {
 		next();
 		check(Token.DOT, "a '.' was expected after 'Out'");
 		next();
-		if(lexer.token != Token.PRINT && lexer.token != Token.PRINTLN) 
+		if(lexer.getStringValue().equals("print:") && lexer.getStringValue().equals("println:")) 
 			error("'print:' or 'println:' was expected after 'Out.'");
 		String printName = lexer.getStringValue();
 		expr();
