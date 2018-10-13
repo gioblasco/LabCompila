@@ -292,7 +292,6 @@ public class Lexer {
         return n;
     }
 
-
     public String getCurrentLine() {
         //return getLine(lastTokenPos);
         return getLine(tokenPos);

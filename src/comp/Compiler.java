@@ -454,7 +454,6 @@ public class Compiler {
     }
     
     // Factor ::= BasicValue | “(” Expression “)” | “!” Factor | “nil” | ObjectCreation | PrimaryExpr
-    // CONFUSAO
     private void factor() {
     	if(!startExpr(lexer.token)) {
     		error("Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr");
@@ -469,9 +468,7 @@ public class Compiler {
     		next();
     		factor();
     	} else if (lexer.token == Token.ID){
-    		// DUVIDA: COMO RESOLVER INICIO COM ID . EM PRIMARYEXPR E OBJECTCREATION
-    		if(!objectCreation())
-    			primaryExpr();
+    		primaryExpr();
     	} else {
     		primaryExpr();
     	}
@@ -488,30 +485,18 @@ public class Compiler {
     }
 
     // ObjectCreation ::= Id “.” “new”
-    private boolean objectCreation() {
-    	boolean correct = true;
-        if (lexer.token != Token.ID) {
-            correct = false;
-        }
-        next();
-        if (lexer.token != Token.DOT) {
-            correct = false;
-        }
-        next();
-        if (lexer.token != Token.NEW) {
-            correct = false;
-        }
-        next();
-        return correct;
+    private void objectCreation() {
+
     }
 
     /* PrimaryExpr ::= “super” “.” IdColon ExpressionList | “super” “.” Id | Id | Id “.” Id | 
-	Id “.” IdColon ExpressionList | “self” |
+	Id “.” IdColon ExpressionList | Id "." new | “self” |
 	“self” “.” Id |
 	“self” ”.” IdColon ExpressionList |
 	“self” ”.” Id “.” IdColon ExpressionList |
 	“self” ”.” Id “.” Id | 	ReadExpr
 	 */
+    // objectCreation foi adicionado aqui por questões de ambiguidade
     private boolean primaryExpr() {
     	boolean correct = true;
         if (lexer.token == Token.SUPER) {
@@ -533,8 +518,8 @@ public class Compiler {
             next();
             if (lexer.token == Token.DOT) {
                 next();
-                if (lexer.token != Token.IDCOLON && lexer.token != Token.ID) {
-                    error("An identifier: or identifier were expected after the id call");
+                if (lexer.token != Token.IDCOLON && lexer.token != Token.ID && lexer.token != Token.NEW) {
+                    error("An identifier: or identifier or a 'new' were expected after the id call");
                     correct = false;
                 } else {
                     next();
