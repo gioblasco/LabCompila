@@ -222,9 +222,6 @@ public class Compiler {
 
     // FieldDec ::= “var” Type IdList “;”
     private void fieldDec() {
-        if (lexer.token != Token.VAR) {
-            error("Missing 'var' keyword");
-        }
         next();
         type();
         idList();
@@ -253,7 +250,7 @@ public class Compiler {
 
     // IdList ::= Id { “,” Id }
     private boolean idList() {
-    	boolean isIdList= false;
+    	boolean isIdList = false;
         while (true) {
             if (lexer.token != Token.ID) {
                 error("Identifier expected");
@@ -271,10 +268,6 @@ public class Compiler {
 
     // MethodDec ::= “func” IdColon FormalParamDec [ “->” Type ] “{” StatementList “}” | “func” Id [ “->” Type ] “{” StatementList “}”
     private void methodDec() {
-        if (lexer.token != Token.FUNC) {
-            error("'func' keyword expected!");
-        }
-
         next();
         if (lexer.token == Token.ID) {
             // unary method
