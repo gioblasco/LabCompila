@@ -12,11 +12,20 @@ abstract public class Type {
     public static Type undefinedType = new TypeUndefined();
     public static Type nullType = new TypeNull();
 
-    public String getName() {
+    public String getType() {
         return name;
     }
-
-    abstract public String getCname();
+    
+    public CianetoClass isClass() {
+    	return cianetoClass;
+    }
+    
+    public Method isFunction() {
+    	return cianetoMethod;    	
+    }
 
     private String name;
+    private CianetoClass cianetoClass;
+    private Method cianetoMethod;
 }
+

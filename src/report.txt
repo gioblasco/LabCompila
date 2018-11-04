@@ -6,21 +6,21 @@ Todos os erros que deveriam ter sido sinalizados o foram
 ######################################################
 Erros que foram sinalizados na linha errada:
 
-ER-SEM62.ci
-    correto:    16, Identifier 'a' was not found (comp.Compiler.factor())
-    sinalizado: 10, 'end' expected
-
-ER-SEM61.ci
-    correto:    36, Method 's' was not found in class 'C' or its superclasses (comp.Compiler.factor())
-    sinalizado: 8, 'class' expected
-
 ER-SEM70.ci
     correto:    13, Method 'm' is being redefined (comp.Compiler.methodDec())
     sinalizado: 25, ';' expected
 
 ER-SEM60.ci
     correto:    23, Method 'p' was not found in the public interface of 'A' or its superclasses (comp.Compiler.factor())
-    sinalizado: 8, 'class' expected
+    sinalizado: 15, Basic value (int, string or boolean) expected!
+
+ER-SEM61.ci
+    correto:    36, Method 's' was not found in class 'C' or its superclasses (comp.Compiler.factor())
+    sinalizado: 35, ';' expected
+
+ER-SEM62.ci
+    correto:    16, Identifier 'a' was not found (comp.Compiler.factor())
+    sinalizado: 10, 'end' expected
 
 ######################################################
 Em todos os testes abaixo, o compilador sinalizou o erro na linha correta (quando o teste tinha erros) ou nao sinalizou o erro (quando o teste NAO tinha erros). Mas eh necessario conferir se as mensagens emitidas pelo compilador sao compativeis com as mensagens de erro sugeridas pelas chamadas aos metaobjetos dos testes. 
@@ -28,7 +28,7 @@ Em todos os testes abaixo, o compilador sinalizou o erro na linha correta (quand
 A lista abaixo contem o nome do arquivo de teste, a mensagem que ele sinalizou e a mensagem sugerida pelo arquivo de teste
 
 ER-SEM68.ci
-The compiler message was: "';' expected"
+The compiler message was: "Basic value (int, string or boolean) expected!"
 The 'cep' message is:      "Method 'p' was not found in class 'Program' or its superclasses"
 
 

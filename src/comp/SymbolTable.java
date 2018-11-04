@@ -30,7 +30,7 @@ public class SymbolTable {
 
     public String getVariableInGlobal(String key) {
         Type temp = globalTable.get(key);
-        if (temp != null && !temp.isFunction()) {
+        if (temp != null && temp.isFunction() == null) {
             return temp.getType();
         }
         return null;
@@ -38,7 +38,7 @@ public class SymbolTable {
 
     public String getFunction(String key) {
         Type temp = globalTable.get(key);
-        if (temp != null && temp.isFunction()) {
+        if (temp != null && temp.isFunction() != null) {
             return temp.getType();
         }
         return null;

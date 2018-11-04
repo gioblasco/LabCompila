@@ -17,13 +17,6 @@ public class Program {
 		this.metaobjectCallList = metaobjectCallList;
 		this.compilationErrorList = compilationErrorList;
 	}
-
-
-	public void genJava(PW pw) {
-	}
-
-	public void genC(PW pw) {
-	}
 	
 	public ArrayList<CianetoClass> getClassList() {
 		return classList;
