@@ -1,45 +1,44 @@
 Organização da gramática
 
-Program
-Annot
-AnnotParam -> IntValue | StringValue | Id
-IntValue
-Digit
-ClassDec -> Id
-MemberList
-Qualifier
-Member
-FieldDec
-Type
-BasicType
-IdList
-MethodDec
-FormalParamDec
-ParamDec
-StatementList
-Statement
-AssignExpr
-Expression
-SimpleExpression
-SumSubExpression
-Term
-HighOperator
-LowOperator
-SignalFactor
-Signal
-Factor
-BasicValue
-BooleanValue
-ObjectCreation
-PrimaryExpr
-ExpressionList
-ReadExpr
-Relation
-IfStat
-WhileStat
-ReturnStat
-WriteStat
-RepeatStat
-LocalDec
-AssertStat
-
+Program = { Annot } ClassDec { { Annot } ClassDec }
+Annot = “@” Id [ “(” { AnnotParam } “)” ]
+AnnotParam = IntValue | StringValue | Id
+IntValue = Digit { Digit }
+Digit = “0” | ... | “9”
+ClassDec = [ “open” ] “class” Id [ “extends” Id ] “{” MemberList “}”
+MemberList = { [ Qualifier ] Member }
+Qualifier = “private” | “public” | “override” | “override” “public” | “final” | “final” “public” | “final” “override” | “final” “override” “public”
+Member = FieldDec | MethodDec
+FieldDec = “var” Type IdList “;”
+Type = BasicType | Id
+BasicType = “Int” | “Boolean” | “String”
+IdList = Id { “,” Id }
+MethodDec = “func” IdColon FormalParamDec [ “->” Type ] “{” StatementList “}” | “func” Id [ “->” Type ] “{” StatementList “}”
+FormalParamDec = ParamDec { “,” ParamDec }
+ParamDec = Type Id
+StatementList = { Statement }
+Statement = AssignExpr “;” | IfStat | WhileStat | ReturnStat “;” | WriteStat “;” | “break” “;” | “;” | RepeatStat “;” | LocalDec “;” | AssertStat “;”
+AssignExpr = Expression [ “=” Expression ]
+Expression = SimpleExpression [ Relation SimpleExpression ]
+SimpleExpression = SumSubExpression { “++” SumSubExpression }
+SumSubExpression = Term { LowOperator Term }
+Term = SignalFactor { HighOperator SignalFactor }
+HighOperator = “∗” | “/” | “&&”
+LowOperator = “+” | “−” | “||”
+SignalFactor = [ Signal ] Factor
+Signal = “+” | “−”
+Factor = BasicValue | “(” Expression “)” | “!” Factor | “nil” | ObjectCreation | PrimaryExpr
+BasicValue = IntValue | BooleanValue | StringValue
+BooleanValue = “true” | “false”
+ObjectCreation = Id “.” “new”
+PrimaryExpr = “super” “.” IdColon ExpressionList | “super” “.” Id | Id | Id “.” Id | Id “.” IdColon ExpressionList | “self” | “self” “.” Id | “self” ”.” IdColon ExpressionList | “self” ”.” Id “.” IdColon ExpressionList | “self” ”.” Id “.” Id | ReadExpr
+ExpressionList = Expression { “,” Expression }
+ReadExpr = “In” “.” [ “readInt” | “readString” ]
+Relation = “==” | “<” | “>” | “<=” | “>=” | “! =”
+IfStat = “if” Expression “{” Statement “}” [ “else” “{” Statement “}” ]
+WhileStat = “while” Expression “{” StatementList “}”
+ReturnStat = “return” Expression
+WriteStat = “Out” “.” [ “print:” | “println:” ] Expression
+RepeatStat = “repeat” StatementList “until” Expression
+LocalDec = “var” Type IdList [ “=” Expression ] “;”
+AssertStat = “assert” Expression “,” StringValue

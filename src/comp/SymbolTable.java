@@ -27,37 +27,9 @@ public class SymbolTable {
     public String getInLocal(String key) {
         return localTable.get(key);
     }
-
-    public String getVariableInGlobal(String key) {
-        Type temp = globalTable.get(key);
-        if (temp != null && temp.isFunction() == null) {
-            return temp.getType();
-        }
-        return null;
-    }
-
-    public String getFunction(String key) {
-        Type temp = globalTable.get(key);
-        if (temp != null && temp.isFunction() != null) {
-            return temp.getType();
-        }
-        return null;
-    }
-  
+    
     public Type getInGlobal(String key){
         return globalTable.get(key);
-    }
-
-    public String getVariable(String key) {
-        // returns the object corresponding to the key. 
-        String result;
-        if ((result = localTable.get(key)) != null) {
-            // found local identifier
-            return result;
-        } else {
-            // global identifier, if it is in globalTable
-            return getVariableInGlobal(key);
-        }
     }
 
     public void removeLocalIdent() {

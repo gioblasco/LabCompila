@@ -1,3 +1,9 @@
+/*
+ * Integrantes: 
+ * Giovanna Blasco Martin - 620378
+ * Mateus Silva Vasconcelos - 620580
+ */
+
 package ast;
 
 abstract public class Type {
@@ -15,17 +21,7 @@ abstract public class Type {
     public String getType() {
         return name;
     }
-    
-    public CianetoClass isClass() {
-    	return cianetoClass;
-    }
-    
-    public Method isFunction() {
-    	return cianetoMethod;    	
-    }
 
     private String name;
-    private CianetoClass cianetoClass;
-    private Method cianetoMethod;
 }
 
