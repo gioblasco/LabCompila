@@ -160,23 +160,24 @@ public class Compiler {
         }
         next();
         if (lexer.token != Token.ID) {
-            error("Identifier expected");
+            error("Identifier expected in class declaration");
+        } else {
+        	String className = lexer.getStringValue();
         }
-        String className = lexer.getStringValue();
         next();
         if (lexer.token == Token.EXTENDS) {
             next();
             if (lexer.token != Token.ID) {
-                error("Identifier expected");
+                error("Identifier expected in extension of class declaration");
+            } else {
+            	String superclassName = lexer.getStringValue();
             }
-            String superclassName = lexer.getStringValue();
-
             next();
         }
 
         memberList();
         if (lexer.token != Token.END) {
-            error("'end' expected");
+            error("'end' expected in class declaration");
         }
         next();
 
