@@ -10,14 +10,24 @@ import java.util.ArrayList;
 
 public class CianetoClass extends Type {
 	
-	public CianetoClass(String name) {
+	public CianetoClass(String name, boolean open) {
 	   super(name);
+	   this.open = open;
 	   this.publicMethodList = new ArrayList<Method>();
 	   this.privateMethodList = new ArrayList<Method>();
 	   this.fieldList = new ArrayList<Field>();	   
 	}
 	
-   public ArrayList<Field> getFieldList() {
+	public CianetoClass(String name, boolean open, CianetoClass parent) {
+	   super(name);
+	   this.open = open;
+	   this.parent = parent;
+	   this.publicMethodList = new ArrayList<Method>();
+	   this.privateMethodList = new ArrayList<Method>();
+	   this.fieldList = new ArrayList<Field>();	   
+	}
+	
+    public ArrayList<Field> getFieldList() {
 		return fieldList;
 	}
 	public void setFieldList(ArrayList<Field> fieldList) {
@@ -35,9 +45,34 @@ public class CianetoClass extends Type {
 	public void setPrivateMethodList(ArrayList<Method> privateMethodList) {
 		this.privateMethodList = privateMethodList;
 	}
+	
+	public boolean isOpen() {
+		return open;
+	}
+	
+	public boolean hasMethod(String methodName) {
+		for(Method m : privateMethodList) {
+			if (m.getName().equals(methodName))
+				return true;
+		}
+		for(Method m : publicMethodList) {
+			if (m.getName().equals(methodName))
+				return true;
+		}
+		return (this.parent == null) ? false : this.parent.hasPublicMethod(methodName);
+	}
+
+	public boolean hasPublicMethod(String methodName) {
+		for(Method m : publicMethodList) {
+			if (m.getName().equals(methodName))
+				return true;
+		}
+		return (this.parent == null) ? false : this.parent.hasPublicMethod(methodName);
+	}
 
 	private ArrayList<Field> fieldList;
 	private ArrayList<Method> publicMethodList, privateMethodList;
-   // m�todos p�blicos get e set para obter e iniciar as vari�veis acima,
-   // entre outros m�todos
+	private CianetoClass parent;
+	private boolean open; 
+	
 }

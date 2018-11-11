@@ -15,6 +15,13 @@ public class Method {
 		this.parameters = parameters;
 	}
 	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	private String name;
 	private Field ret;
 	private ArrayList<Field> parameters;

@@ -6,12 +6,9 @@
 package comp;
 
 import java.io.PrintWriter;
+
 import java.util.ArrayList;
-import ast.CianetoClass;
-import ast.LiteralInt;
-import ast.MetaobjectAnnotation;
-import ast.Program;
-import ast.Statement;
+import ast.*;
 import lexer.Lexer;
 import lexer.Token;
 
@@ -152,7 +149,10 @@ public class Compiler {
 
     // ClassDec ::= [ “open” ] “class” Id [ “extends” Id ] MemberList “end”
     private void classDec() {
+    	boolean open = false;
+    	Type parent;
         if (lexer.getStringValue().equals("open")) {
+        	open = true;
             next();
         }
         if (lexer.token != Token.CLASS) {
@@ -171,6 +171,8 @@ public class Compiler {
                 error("Identifier expected in extension of class declaration");
             } else {
             	String superclassName = lexer.getStringValue();
+            	if((parent = symbolTable.getInGlobal(superclassName)) == null)
+            		error("trying to extend an undefined class");
             }
             next();
         }
