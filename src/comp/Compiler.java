@@ -150,7 +150,8 @@ public class Compiler {
     // ClassDec ::= [ “open” ] “class” Id [ “extends” Id ] MemberList “end”
     private void classDec() {
     	boolean open = false;
-    	Type parent;
+    	Type parent = null;
+    	String className = new String();
         if (lexer.getStringValue().equals("open")) {
         	open = true;
             next();
@@ -162,7 +163,7 @@ public class Compiler {
         if (lexer.token != Token.ID) {
             error("Identifier expected in class declaration");
         } else {
-        	String className = lexer.getStringValue();
+        	className = lexer.getStringValue();
         }
         next();
         if (lexer.token == Token.EXTENDS) {
@@ -172,12 +173,14 @@ public class Compiler {
             } else {
             	String superclassName = lexer.getStringValue();
             	if((parent = symbolTable.getInGlobal(superclassName)) == null)
-            		error("trying to extend an undefined class");
+            		error("Trying to extend an undefined class");
             }
             next();
         }
+        
+        CianetoClass classe = new CianetoClass(className, open, (CianetoClass)parent);
 
-        memberList();
+        memberList(classe);
         if (lexer.token != Token.END) {
             error("'end' expected in class declaration");
         }
@@ -186,13 +189,31 @@ public class Compiler {
     }
 
     // MemberList ::= { [ Qualifier ] Member }
-    private void memberList() {
-        while (true) {
-            qualifier();
+    private void memberList(CianetoClass classe) {
+        Method method;
+        Field field;
+        String qualifier;
+    	while (true) {
+            qualifier = qualifier();
             if (lexer.token == Token.VAR) {
-                fieldDec();
+                field = fieldDec();
+                classe.getFieldList().put(field.getName(), field);
             } else if (lexer.token == Token.FUNC) {
-                methodDec();
+                method = methodDec();
+                if(qualifier.contains("override")) {
+                	if(qualifier.contains("private")) {
+                		error("Cannot override a private method!");
+                    	
+                	} else {
+    	                
+                    }
+                } else {
+                	if(qualifier.contains("private"))
+                    	
+                    else {
+    	               
+                    }
+                } 
             } else {
                 break;
             }
@@ -200,50 +221,64 @@ public class Compiler {
     }
 
     // Qualifier ::= “private” | “public” | “override” | “override” “public” | “final” | “final” “public” | “final” “override” | “final” “override” “public”
-    private void qualifier() {
+    private String qualifier() {
+    	String qualifier = new String();
         if (lexer.token == Token.PRIVATE) {
+        	qualifier = lexer.getStringValue();
             next();
         } else if (lexer.token == Token.PUBLIC) {
+        	qualifier = lexer.getStringValue();
             next();
         } else if (lexer.token == Token.OVERRIDE) {
+        	qualifier = lexer.getStringValue();
             next();
             if (lexer.token == Token.PUBLIC) {
+            	qualifier.concat(" " + lexer.getStringValue());
                 next();
             }
         } else if (lexer.token == Token.FINAL) {
+        	qualifier = lexer.getStringValue();
             next();
             if (lexer.token == Token.PUBLIC) {
+            	qualifier.concat(" " + lexer.getStringValue());
                 next();
             } else if (lexer.token == Token.OVERRIDE) {
+            	qualifier.concat(" " + lexer.getStringValue());
                 next();
                 if (lexer.token == Token.PUBLIC) {
+                	qualifier.concat(" " + lexer.getStringValue());
                     next();
                 }
             }
         }
+        return qualifier;
     }
 
     // FieldDec ::= “var” Type IdList “;”
-    private void fieldDec() {
-        next();
-        type();
-        idList();
+    private Field fieldDec() {
+    	Field field;
+    	Type type;
+    	next();
+        type = type();
+        ArrayList<String> idList = idList();
 
         if (lexer.token != Token.SEMICOLON) {
             error("Semicolon Expected");
         }
+        
+        return field;
     }
 
     // Type ::= BasicType | Id
-    private void type() {
-        if (lexer.token == Token.INT || lexer.token == Token.BOOLEAN || lexer.token == Token.STRING) {
-            next();
-        } else if (lexer.token == Token.ID) {
+    private Type type() {
+    	Type type;
+        if (lexer.token == Token.INT || lexer.token == Token.BOOLEAN || lexer.token == Token.STRING || lexer.token == Token.ID) {
+        	type = new Type(lexer.token);
             next();
         } else {
             error("A type was expected");
         }
-
+        return type;
     }
 
     // BasicType ::= “Int” | “Boolean” | “String”
@@ -270,7 +305,8 @@ public class Compiler {
     }
 
     // MethodDec ::= “func” IdColon FormalParamDec [ “->” Type ] “{” StatementList “}” | “func” Id [ “->” Type ] “{” StatementList “}”
-    private void methodDec() {
+    private Method methodDec() {
+    	Method method;
         next();
         if (lexer.token == Token.ID) {
             // unary method
@@ -299,7 +335,8 @@ public class Compiler {
         }
 
         next();
-
+        
+        return method;
     }
 
     // FormalParamDec ::= ParamDec [{ “,” ParamDec }]

@@ -9,9 +9,9 @@ package ast;
 import java.util.ArrayList;
 
 public class Method {
-	public Method(String name, Field ret, ArrayList<Field> parameters) {
-		this.name = name;
-		this.ret = ret;
+	
+	public Method(Type type, ArrayList<Field> parameters) {
+		this.type = type;
 		this.parameters = parameters;
 	}
 	
@@ -21,8 +21,20 @@ public class Method {
 	public void setName(String name) {
 		this.name = name;
 	}
+	public Type getType() {
+		return type;
+	}
+	public void setType(Type type) {
+		this.type = type;
+	}
+	public ArrayList<Field> getParameters() {
+		return parameters;
+	}
+	public void setParameters(ArrayList<Field> parameters) {
+		this.parameters = parameters;
+	}
 
 	private String name;
-	private Field ret;
+	private Type type;
 	private ArrayList<Field> parameters;
 }
