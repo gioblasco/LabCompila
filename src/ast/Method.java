@@ -10,9 +10,10 @@ import java.util.ArrayList;
 
 public class Method {
 	
-	public Method(Type type, ArrayList<Field> parameters) {
+	public Method(Type type, ArrayList<Field> parameters, String name) {
 		this.type = type;
 		this.parameters = parameters;
+		this.name = name;
 	}
 	
 	public String getName() {

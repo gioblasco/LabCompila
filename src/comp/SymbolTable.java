@@ -12,7 +12,7 @@ import ast.Type;
 public class SymbolTable {
 
     public SymbolTable() {
-        localTable = new Hashtable<String, String>();
+        localTable = new Hashtable<String, Type>();
         globalTable = new Hashtable<String, Type>();
     }
 
@@ -20,11 +20,11 @@ public class SymbolTable {
             globalTable.put(key, value);
     }
 
-    public void putInLocal(String key, String value) {
+    public void putInLocal(String key, Type value) {
         localTable.put(key, value);
     }
 
-    public String getInLocal(String key) {
+    public Type getInLocal(String key) {
         return localTable.get(key);
     }
     
@@ -37,6 +37,6 @@ public class SymbolTable {
         localTable.clear();
     }
     
+    private Hashtable<String, Type> localTable;
     private Hashtable<String, Type> globalTable;
-    private Hashtable<String, String> localTable;
 }

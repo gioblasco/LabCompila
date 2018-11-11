@@ -6,7 +6,6 @@
 
 package ast;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class CianetoClass extends Type {
@@ -49,9 +48,23 @@ public class CianetoClass extends Type {
 		return (this.parent == null) ? null : this.parent.getPublicMethod(methodName);
 	}
 
+	public Field getAttribute(){
+		// TODO: não deixar isso pra depois
+		return null;
+	}
+	
+	public Hashtable<String, Method> getPublicHashtable() {
+		return this.publicMethodList;
+	}
+
+	public Hashtable<String, Method> getPrivateHashtable() {
+		return this.privateMethodList;
+	}
+
 	public Hashtable<String, Field> getFieldList() {
 		return fieldList;
 	}
+
 
 	public void setFieldList(Hashtable<String, Field> fieldList) {
 		this.fieldList = fieldList;

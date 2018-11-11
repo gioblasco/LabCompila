@@ -190,28 +190,50 @@ public class Compiler {
 
     // MemberList ::= { [ Qualifier ] Member }
     private void memberList(CianetoClass classe) {
-        Method method;
-        Field field;
+        Method method, temp;
+        ArrayList<Field> field;
         String qualifier;
     	while (true) {
             qualifier = qualifier();
             if (lexer.token == Token.VAR) {
+                // TODO: verificar se precisa tratar override, protect e etc..
                 field = fieldDec();
-                classe.getFieldList().put(field.getName(), field);
+                for(Field f : field){
+                    classe.getFieldList().put(f.getName(), f);
+                }
             } else if (lexer.token == Token.FUNC) {
                 method = methodDec();
                 if(qualifier.contains("override")) {
                 	if(qualifier.contains("private")) {
                 		error("Cannot override a private method!");
                     	
-                	} else {
-    	                
+                    } else { // public with override
+                        // verificar se ja nao existe na classe atual
+                        temp = classe.getPrivateHashtable().get(method.getName());
+                        if(temp == null)
+                            temp = classe.getPublicHashtable().get(method.getName());
+                        if(temp != null)
+                            error("Method already declared");
+                        else {
+                            temp = (classe.getParent() != null ) ? classe.getParent().getPublicMethod(method.getName()) : null;
+                            if(temp == null) {
+                                error("Trying to override a non existent method");
+                            } else {
+                                classe.getPublicHashtable().put(method.getName(), method);
+                            }
+                        }
+
+
                     }
-                } else {
-                	if(qualifier.contains("private"))
-                    	
-                    else {
-    	               
+                } else { // Sem @override
+                    temp = classe.getMethod(method.getName());
+                    if(temp != null)
+                        error( "Method already declared");
+                    else{
+                        if(qualifier.contains("private"))
+                            classe.getPrivateHashtable().put(method.getName(),method);
+                        else
+                            classe.getPublicHashtable().put(method.getName(),method);
                     }
                 } 
             } else {
@@ -255,25 +277,46 @@ public class Compiler {
     }
 
     // FieldDec ::= “var” Type IdList “;”
-    private Field fieldDec() {
-    	Field field;
-    	Type type;
+    private ArrayList<Field> fieldDec() {
+        ArrayList<Field> field = new ArrayList<Field>();
+        // já está sendo verificado se chamou o var, fique tranquilo...
     	next();
-        type = type();
+        Type type = type();
         ArrayList<String> idList = idList();
+
+        for(String name: idList) {
+            field.add(new Field(type, name));
+        }
 
         if (lexer.token != Token.SEMICOLON) {
             error("Semicolon Expected");
         }
-        
         return field;
     }
 
     // Type ::= BasicType | Id
     private Type type() {
-    	Type type;
-        if (lexer.token == Token.INT || lexer.token == Token.BOOLEAN || lexer.token == Token.STRING || lexer.token == Token.ID) {
-        	type = new Type(lexer.token);
+    	Type type = null;
+        if (lexer.token == Token.INT || lexer.token == Token.BOOLEAN || lexer.token == Token.STRING) {
+            switch(lexer.token) {
+                case INT: 
+                    type = Type.intType;
+                    break;
+                case BOOLEAN:
+                    type = Type.booleanType;
+                    break;
+                case STRING:
+                    type = Type.stringType;
+                    break;
+                default:
+                    break;
+            }
+        
+            next();
+        } else if(lexer.token == Token.ID) {
+            // TODO: Fazer o put, pq se não o get não funfa...
+            if( (type = symbolTable.getInGlobal(lexer.getStringValue())) == null)
+                error("Class not Found!");
             next();
         } else {
             error("A type was expected");
@@ -281,49 +324,58 @@ public class Compiler {
         return type;
     }
 
-    // BasicType ::= “Int” | “Boolean” | “String”
-    private void basicType() {
-
-    }
+ 
 
     // IdList ::= Id { “,” Id }
-    private boolean idList() {
-    	boolean isIdList = false;
+    private ArrayList<String> idList() {
+        ArrayList<String> temp = new ArrayList<String>();
         while (true) {
             if (lexer.token != Token.ID) {
                 error("Identifier expected");
-            }
+            } else
+                temp.add(lexer.getStringValue());
             next();
             if (lexer.token == Token.COMMA) {
                 next();
-                isIdList = true;
             } else {
                 break;
             }
         }
-        return isIdList;
+        return temp;
     }
 
     // MethodDec ::= “func” IdColon FormalParamDec [ “->” Type ] “{” StatementList “}” | “func” Id [ “->” Type ] “{” StatementList “}”
     private Method methodDec() {
-    	Method method;
+        Method method = null;
+        String methodName = new String("");
+        ArrayList<Field> parameters = null;
+        Type t = Type.undefinedType;
+        // Já esta verificando pela keyword "func" acima meu chapa, fique tranquilo...
         next();
         if (lexer.token == Token.ID) {
-            // unary method
+            methodName = lexer.getStringValue();
             next();
 
         } else if (lexer.token == Token.IDCOLON) {
             // keyword method. It has parameters
+            methodName = lexer.getStringValue();
             next();
-            formalParamDec();
-
+            parameters = formalParamDec();
+            for (Field f: parameters){
+                if( symbolTable.getInLocal(f.getName()) == null ) {
+                    symbolTable.putInLocal( f.getName(),f.getType() );
+                } else {
+                    error("Duplicated parameter name");
+                }
+            }
         } else {
             error("An 'identifier' or 'identifier:' was expected after 'func' ");
         }
+
         if (lexer.token == Token.MINUS_GT) {
             // method declared a return type
             next();
-            type();
+            t = type();
         }
         if (lexer.token != Token.LEFTCURBRACKET) {
             error("'{' expected");
@@ -335,26 +387,32 @@ public class Compiler {
         }
 
         next();
-        
+        method = new Method(t, parameters, methodName);
         return method;
     }
 
     // FormalParamDec ::= ParamDec [{ “,” ParamDec }]
-    private void formalParamDec() {
-        paramDec();
+    private ArrayList<Field> formalParamDec() {
+        ArrayList<Field> temp = new ArrayList<Field>();
+        temp.add(paramDec());
         while (lexer.token == Token.COMMA) {
             next();
-            paramDec();
+            temp.add(paramDec());
         }
+        return temp;
     }
 
     // ParamDec ::= Type Id
-    private void paramDec() {
-        type();
+    private Field paramDec() {
+        Field f = null;
+        Type t = type();
         if (lexer.token != Token.ID) {
             error("Identifier Expected!");
+        } else {
+            f = new Field(t, lexer.getStringValue());
         }
         next();
+        return f;
     }
 
     // StatementList ::= { Statement }
@@ -420,7 +478,8 @@ public class Compiler {
     }
 
     // Expression ::= SimpleExpression [ Relation SimpleExpression ]
-    private void expr() {
+    private Expr expr() {
+        // TODO: Fazer isso aqui:
         simpleExpr();
         // Relation ::= “==” | “<” | “>” | “<=” | “>=” | “! =”
         if (lexer.token == Token.EQ || lexer.token == Token.LT || lexer.token == Token.GT || lexer.token == Token.LE || lexer.token == Token.GE || lexer.token == Token.NOT) {
@@ -434,6 +493,7 @@ public class Compiler {
             }
             simpleExpr();
         }
+        return null;
     }
 
     // SimpleExpression ::= SumSubExpression { “++” SumSubExpression }
@@ -684,17 +744,17 @@ public class Compiler {
 
     // LocalDec ::= “var” Type IdList [ “=” Expression ] “;”
     private void localDec() {
-    	boolean isIdList;
-    	next();
-        type();
-        isIdList = idList();
+        ArrayList<String> identifiers = null;
+        next();
+        Type t = type();
+        Expr e;
+        identifiers = idList();
         
         if (lexer.token == Token.ASSIGN) {
         	next();
-        	if( !isIdList) {
-            
+        	if( identifiers.size() == 1) {
         		// check if there is just one variable    
-        		expr();
+        		e = expr();
     		} else {
     			error("Ignore the next error! You can't assign a value when declaring multiple variables!");
     		}
