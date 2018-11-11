@@ -744,6 +744,7 @@ public class Compiler {
 
     // LocalDec ::= “var” Type IdList [ “=” Expression ] “;”
     private void localDec() {
+        // TODO: Paramos aqui...
         ArrayList<String> identifiers = null;
         next();
         Type t = type();
