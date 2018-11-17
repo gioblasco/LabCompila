@@ -173,7 +173,7 @@ public class Compiler {
             } else {
             	String superclassName = lexer.getStringValue();
             	if((parent = symbolTable.getInGlobal(superclassName)) == null)
-            		error("Trying to extend an undefined class");
+            		error("Trying to extend an unexistant class");
             }
             next();
         }
@@ -184,56 +184,92 @@ public class Compiler {
         if (lexer.token != Token.END) {
             error("'end' expected in class declaration");
         }
+        
+        // colocando classe na symbol table
+        symbolTable.putInGlobal(className, classe);
+        
         next();
 
     }
 
     // MemberList ::= { [ Qualifier ] Member }
     private void memberList(CianetoClass classe) {
-        Method method, temp;
+        Method method, tempMethod;
         ArrayList<Field> field;
+        Field tempField;
         String qualifier;
     	while (true) {
             qualifier = qualifier();
+            if(!classe.isOpen() && qualifier.contains("final")) {
+            	error("A final class cannot have final members. It's redudant.");
+            }
             if (lexer.token == Token.VAR) {
                 // TODO: verificar se precisa tratar override, protect e etc..
                 field = fieldDec();
-                for(Field f : field){
-                    classe.getFieldList().put(f.getName(), f);
-                }
+                if(qualifier.contains("override")) {
+                	if(qualifier.contains("private")) {
+                		error("Cannot override a private method!");
+                    } else { // public with override
+                    	for(Field f : field){
+                         // verificar se ja nao existe na classe atual
+                            tempField = classe.getPrivateField().get(f.getName());
+                            if(tempField == null)
+                                tempField = classe.getPublicField().get(f.getName());
+                            if(tempField != null)
+                                error("Method already declared");
+                            else {
+                                tempField = (classe.getParent() != null ) ? classe.getParent().getPublicField(f.getName()) : null;
+                                if(tempField == null) {
+                                    error("Trying to override a non existent method");
+                                } else {
+                                    classe.getPublicField().put(f.getName(), f);
+                                }
+                            }
+                        }
+                    }
+                } else { // Sem @override
+                	for(Field f : field){
+	                    tempField = classe.getField(f.getName());
+	                    if(tempField != null)
+	                        error( "Method already declared");
+	                    else{
+	                        if(qualifier.contains("private"))
+	                            classe.getPrivateField().put(f.getName(),f);
+	                        else
+	                            classe.getPublicField().put(f.getName(), f);
+	                    }
+                	}
+                } 
             } else if (lexer.token == Token.FUNC) {
                 method = methodDec();
                 if(qualifier.contains("override")) {
                 	if(qualifier.contains("private")) {
                 		error("Cannot override a private method!");
-                    	
                     } else { // public with override
                         // verificar se ja nao existe na classe atual
-                        temp = classe.getPrivateHashtable().get(method.getName());
-                        if(temp == null)
-                            temp = classe.getPublicHashtable().get(method.getName());
-                        if(temp != null)
+                        tempMethod = classe.getPrivateMethod().get(method.getName());
+                        if(tempMethod == null)
+                            tempMethod = classe.getPublicMethod().get(method.getName());
+                        if(tempMethod != null)
                             error("Method already declared");
                         else {
-                            temp = (classe.getParent() != null ) ? classe.getParent().getPublicMethod(method.getName()) : null;
-                            if(temp == null) {
+                            tempMethod = (classe.getParent() != null ) ? classe.getParent().getPublicMethod(method.getName()) : null;
+                            if(tempMethod == null) {
                                 error("Trying to override a non existent method");
                             } else {
-                                classe.getPublicHashtable().put(method.getName(), method);
+                                classe.getPublicMethod().put(method.getName(), method);
                             }
                         }
-
-
                     }
                 } else { // Sem @override
-                    temp = classe.getMethod(method.getName());
-                    if(temp != null)
+                    tempMethod = classe.getMethod(method.getName());
+                    if(tempMethod != null)
                         error( "Method already declared");
                     else{
                         if(qualifier.contains("private"))
-                            classe.getPrivateHashtable().put(method.getName(),method);
+                            classe.getPrivateMethod().put(method.getName(),method);
                         else
-                            classe.getPublicHashtable().put(method.getName(),method);
+                            classe.getPublicMethod().put(method.getName(),method);
                     }
                 } 
             } else {
@@ -314,7 +350,6 @@ public class Compiler {
         
             next();
         } else if(lexer.token == Token.ID) {
-            // TODO: Fazer o put, pq se não o get não funfa...
             if( (type = symbolTable.getInGlobal(lexer.getStringValue())) == null)
                 error("Class not Found!");
             next();
@@ -373,7 +408,6 @@ public class Compiler {
         }
 
         if (lexer.token == Token.MINUS_GT) {
-            // method declared a return type
             next();
             t = type();
         }
