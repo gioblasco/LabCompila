@@ -32,6 +32,13 @@ public class CianetoClass extends Type {
 		this.parent = parent;
 	}
 	
+	public Field getField(String fieldName) {
+		Field tempField = this.privateFieldList.get(fieldName);
+		if(tempField == null)
+			tempField = this.publicFieldList.get(fieldName);
+		return tempField;
+	}
+	
 	public Method getMethod(String methodName) {
 		Method tempMethod;
 		tempMethod = this.privateMethodList.get(methodName);
@@ -41,7 +48,11 @@ public class CianetoClass extends Type {
 			return tempMethod;
 		return (this.parent == null) ? null : this.parent.getPublicMethod(methodName);
 	}
-
+	public Method getParentPublicMethod(String methodName) {
+		if(this.parent == null)
+			return null;
+		return this.parent.getPublicMethod(methodName);
+	}
 	public Method getPublicMethod(String methodName) {
 		Method tempMethod = this.publicMethodList.get(methodName);
 		if(tempMethod != null)

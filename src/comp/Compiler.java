@@ -199,9 +199,9 @@ public class Compiler {
 
     // MemberList ::= { [ Qualifier ] Member }
     private void memberList(CianetoClass classe) { //checar se o nome do membro nao eh igual ao da classe
-        Method method, tempMethod;
+        Method method, tempMethod = null;
         ArrayList<Field> field;
-        Field tempField;
+        Field tempField = null;
         String qualifier;
     	while (true) {
             qualifier = qualifier();
@@ -209,34 +209,37 @@ public class Compiler {
             	error("A final class cannot have final members. It's redudant.");
             }
             if (lexer.token == Token.VAR) {
-                // TODO: verificar se precisa tratar override, protect e etc..
                 field = fieldDec();
+                for(Field f: field) {
+                	if(f.getName().equals(classe.getName())) {
+            			error("Field name is equal class name " + classe.getName());
+            		}
+                }
                 if(qualifier.contains("override")) {
                 	if(qualifier.contains("private")) {
-                		error("Cannot override a private method!");
+                		error("Cannot override a private field!");
                     } else { // public with override
                     	for(Field f : field){
-                         // verificar se ja nao existe na classe atual
-                            tempField = classe.getPrivateField().get(f.getName());
+                    		// verificar se ja nao existe na classe atual
+                            tempField = classe.getField(f.getName());
                             if(tempField == null)
-                                tempField = classe.getPublicField().get(f.getName());
-                            if(tempField != null)
-                                error("Method already declared");
-                            else {
-                                tempField = (classe.getParent() != null ) ? classe.getParent().getPublicField(f.getName()) : null;
-                                if(tempField == null) {
-                                    error("Trying to override a non existent method");
-                                } else {
-                                    classe.getPublicField().put(f.getName(), f);
-                                }
-                            }
+                            	tempMethod = classe.getPrivateMethod().get(f.getName());
+                            if(tempMethod == null)
+                            	tempMethod = classe.getPublicMethod().get(f.getName());
+                            if(tempField != null || tempMethod != null)
+                            	error("Field has the same name as another member in the scope.");
+                            else
+                            	classe.getPublicField().put(f.getName(), f);
                         }
                     }
                 } else { // Sem @override
                 	for(Field f : field){
-	                    tempField = classe.getField(f.getName());
-	                    if(tempField != null)
-	                        error( "Method already declared");
+	                    tempField = classe.getField(f.getName()); // verifica se n existe na atual
+	                    tempMethod = classe.getPrivateMethod().get(f.getName());
+                        if(tempMethod == null)
+                        	tempMethod = classe.getPublicMethod().get(f.getName());
+	                    if(tempField != null || tempMethod != null)
+	                        error("Field has the same name as another member in the scope or in the parent (not using override)");
 	                    else{
 	                        if(qualifier.contains("private"))
 	                            classe.getPrivateField().put(f.getName(),f);
@@ -247,6 +250,8 @@ public class Compiler {
                 } 
             } else if (lexer.token == Token.FUNC) {
                 method = methodDec();
+                if(method.getName().equals(classe.getName()))
+                	error("Method name is equal to the class name");
                 if(qualifier.contains("override")) {
                 	if(qualifier.contains("private")) {
                 		error("Cannot override a private method!");
@@ -255,8 +260,10 @@ public class Compiler {
                         tempMethod = classe.getPrivateMethod().get(method.getName());
                         if(tempMethod == null)
                             tempMethod = classe.getPublicMethod().get(method.getName());
-                        if(tempMethod != null)
-                            error("Method already declared");
+                        if(tempMethod == null)
+                        	tempField = classe.getField(method.getName());
+                        if(tempMethod != null|| tempField != null)
+                        	error("Method has the same name as another member in the scope.");
                         else {
                             tempMethod = (classe.getParent() != null ) ? classe.getParent().getPublicMethod(method.getName()) : null;
                             if(tempMethod == null) {
@@ -268,8 +275,9 @@ public class Compiler {
                     }
                 } else { // Sem @override
                     tempMethod = classe.getMethod(method.getName());
-                    if(tempMethod != null)
-                        error( "Method already declared");
+                    tempField = classe.getField(method.getName());
+                    if(tempMethod != null || tempField != null)
+                        error("Method has the same name as another member in the scope or in the parent (not using override)");
                     else{
                         if(qualifier.contains("private"))
                             classe.getPrivateMethod().put(method.getName(),method);
@@ -512,13 +520,12 @@ public class Compiler {
         expr();
         if (lexer.token == Token.ASSIGN) {
             next();
-            expr();
+            expr(); // verificar se Expr1 tem mesmo tipo ou é conversível para Expr2
         }
     }
 
     // Expression ::= SimpleExpression [ Relation SimpleExpression ]
-    private Expr expr() {
-        // TODO: Fazer isso aqui:
+    private Type expr() {
         simpleExpr();
         // Relation ::= “==” | “<” | “>” | “<=” | “>=” | “! =”
         if (lexer.token == Token.EQ || lexer.token == Token.LT || lexer.token == Token.GT || lexer.token == Token.LE || lexer.token == Token.GE || lexer.token == Token.NOT) {
@@ -530,63 +537,56 @@ public class Compiler {
                     next();
                 }
             }
-            simpleExpr();
-        }
+            simpleExpr(); // verificar se eh possivel relacionar o simpleExpr1 com simpleExpr2
+        } 
         return null;
     }
 
     // SimpleExpression ::= SumSubExpression { “++” SumSubExpression }
-    private void simpleExpr() {
-        sumSubExpr();
+    private Type simpleExpr() {
+        sumSubExpr(); 
         while (lexer.token == Token.CONCAT) {
             next();
-            sumSubExpr();
+            sumSubExpr(); // verificar se sumSubExpr é Int ou String
         }
+        
+        return null;
     }
 
     // SumSubExpression ::= Term { LowOperator Term }
-    private void sumSubExpr() {
+    private Type sumSubExpr() {
         term();
-        while (lexer.token == Token.PLUS || lexer.token == Token.MINUS || lexer.token == Token.OR) {
+        while (lexer.token == Token.PLUS || lexer.token == Token.MINUS || lexer.token == Token.OR) { // lowOperator
             next();
-            term();
+            term(); // verificar se Term1 e Term2 são Int (quando PLUS ou MINUS) ou se são Boolean (quando OR)
         }
+        
+        return null;
     }
 
     // Term ::= SignalFactor { HighOperator SignalFactor }
-    private void term() {
+    private Expr term() {
         signalFactor();
-        while (lexer.token == Token.MULT || lexer.token == Token.DIV || lexer.token == Token.AND) {
+        while (lexer.token == Token.MULT || lexer.token == Token.DIV || lexer.token == Token.AND) { // highOperator
             next();
-            signalFactor();
+            signalFactor(); // verificar se Term1 e Term2 são Int (quando MULT ou DIV) ou se são Boolean (quando AND)
         }
-    }
-
-    // HighOperator ::= “∗” | “/” | “&&”
-    private void highOperator() {
-
-    }
-
-    // LowOperator ::= “+” | “−” | “||”	
-    private void lowOperator() {
-
+        
+        return null;
     }
 
     // SignalFactor ::= [ Signal ] Factor
-    private void signalFactor() {
-        if (lexer.token == Token.PLUS || lexer.token == Token.MINUS) {
+    private Type signalFactor() {
+        if (lexer.token == Token.PLUS || lexer.token == Token.MINUS) { // positivo ou negativo
             next();
         }
-        factor();
-    }
-
-    // Signal ::= “+” | “−”
-    private void signal() {
-
+        factor(); // se tiver signal, verificar se o factor é Int
+        
+        return null;
     }
     
     // Factor ::= BasicValue | “(” Expression “)” | “!” Factor | “nil” | ObjectCreation | PrimaryExpr
-    private void factor() {
+    private Type factor() {
     	if(!startExpr(lexer.token)) {
     		error("Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr");
     	} if(lexer.token != Token.LITERALINT && lexer.token != Token.STRING && lexer.token != Token.TRUE && lexer.token != Token.FALSE) {
@@ -604,21 +604,8 @@ public class Compiler {
     	} else {
     		primaryExpr();
     	}
-    }
-
-    // BasicValue ::= IntValue | BooleanValue | StringValue
-    private void basicValue() {
-
-    }
-
-    // BooleanValue ::= “true” | “false”
-    private void booleanValue() {
-
-    }
-
-    // ObjectCreation ::= Id “.” “new”
-    private void objectCreation() {
-
+    	
+    	return null;
     }
 
     /* PrimaryExpr ::= “super” “.” IdColon ExpressionList | “super” “.” Id | Id | Id “.” Id | 
@@ -629,7 +616,7 @@ public class Compiler {
 	“self” ”.” Id “.” Id | 	ReadExpr
 	 */
     // objectCreation foi adicionado aqui por questões de ambiguidade
-    private boolean primaryExpr() {
+    private Type primaryExpr() {
     	boolean correct = true;
         if (lexer.token == Token.SUPER) {
             next();
@@ -687,7 +674,7 @@ public class Compiler {
         } else {
             readExpr();
         }
-        return correct;
+        return null;
     }
 
     // ExpressionList ::= Expression { “,” Expression } 
@@ -707,11 +694,6 @@ public class Compiler {
         if (lexer.getStringValue().equals("readInt") && lexer.getStringValue().equals("readString")) {
             error("'readInt' or 'readString' was expected after 'In.'");
         }
-    }
-
-    // Relation ::= “==” | “<” | “>” | “<=” | “>=” | “! =”
-    private void relation() {
-
     }
 
     // IfStat ::= “if” Expression “{” Statement “}” [ “else” “{” Statement “}” ]
@@ -787,16 +769,19 @@ public class Compiler {
         ArrayList<String> identifiers = null;
         next();
         Type t = type();
-        Expr e;
-        identifiers = idList();
+        Type e;
+        identifiers = idList(); // verificar se nao eh repetido
         
         if (lexer.token == Token.ASSIGN) {
         	next();
         	if( identifiers.size() == 1) {
         		// check if there is just one variable    
         		e = expr();
+        		if (t != e) {
+        			error("Trying to assign an expression of type " + e.getName() + "to an field of type "+ t.getName());
+        		}
     		} else {
-    			error("Ignore the next error! You can't assign a value when declaring multiple variables!");
+    			error("You can't assign a value when declaring multiple variables!");
     		}
         	
 		}
