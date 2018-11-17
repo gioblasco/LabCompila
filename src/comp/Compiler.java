@@ -174,6 +174,11 @@ public class Compiler {
             	String superclassName = lexer.getStringValue();
             	if((parent = symbolTable.getInGlobal(superclassName)) == null)
             		error("Trying to extend an unexistant class");
+            	// checa se o parent não eh final
+            	else {
+            		if(!((CianetoClass)parent).isOpen())
+            			error("Trying to extend a final class");            			            			
+            	}
             }
             next();
         }
@@ -193,7 +198,7 @@ public class Compiler {
     }
 
     // MemberList ::= { [ Qualifier ] Member }
-    private void memberList(CianetoClass classe) {
+    private void memberList(CianetoClass classe) { //checar se o nome do membro nao eh igual ao da classe
         Method method, tempMethod;
         ArrayList<Field> field;
         Field tempField;
