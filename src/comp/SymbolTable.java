@@ -10,6 +10,7 @@ import java.util.*;
 
 import ast.Type;
 import ast.CianetoClass;
+import ast.Method;
 
 public class SymbolTable {
 
@@ -41,6 +42,14 @@ public class SymbolTable {
     public void setCurrentClass(CianetoClass classe) {
     	this.currentClass = classe;
     }
+    
+    public Method getCurrentMethod() {
+    	return currentMethod;
+    }
+    
+    public void setCurrentMethod(Method metodo) {
+    	this.currentMethod = metodo;
+    }
 
     public void removeLocalIdent() {
         // remove all local identifiers from the table
@@ -50,4 +59,5 @@ public class SymbolTable {
     private Hashtable<String, Type> localTable;
     private Hashtable<String, Type> globalTable;
     private CianetoClass currentClass;
+    private Method currentMethod;
 }

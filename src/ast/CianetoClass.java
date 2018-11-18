@@ -53,16 +53,18 @@ public class CianetoClass extends Type {
 			return null;
 		return this.parent.getPublicMethod(methodName);
 	}
+	
 	public Method getPublicMethod(String methodName) {
 		Method tempMethod = this.publicMethodList.get(methodName);
 		if(tempMethod != null)
 			return tempMethod;
 		return (this.parent == null) ? null : this.parent.getPublicMethod(methodName);
 	}
-
-	public Field getAttribute(){
-		// TODO: não deixar isso pra depois
-		return null;
+	
+	public boolean findParent(String className) {
+		if(this.getName().equals(className))
+			return true;
+		return (this.parent == null) ? false : this.parent.findParent(className);
 	}
 	
 	public Hashtable<String, Method> getPublicMethod() {

@@ -432,13 +432,15 @@ public class Compiler {
             error("'{' expected");
         }
         next();
+        method = new Method(t, parameters, methodName);
+        symbolTable.setCurrentMethod(method);
+        
         statementList();
         if (lexer.token != Token.RIGHTCURBRACKET) {
             error("'}' expected");
         }
 
         next();
-        method = new Method(t, parameters, methodName);
         
         symbolTable.removeLocalIdent();
         return method;
@@ -513,7 +515,7 @@ public class Compiler {
                 } else if (lexer.token == Token.ID && lexer.getStringValue().equals("In")) {
                     readExpr();
                 } else {
-                    expr();
+                    assignExpr();
                 }
         }
         if (checkSemiColon) {
@@ -523,95 +525,214 @@ public class Compiler {
 
     // AssignExpr ::= Expression [ “=” Expression ]
     private void assignExpr() {
-        expr();
+    	Type tipoAssign1 = Type.undefinedType, tipoAssign2 = Type.undefinedType;
+
+        tipoAssign1 = expr();
         if (lexer.token == Token.ASSIGN) {
             next();
-            expr(); // verificar se Expr1 tem mesmo tipo ou é conversível para Expr2
+            tipoAssign2 = expr(); // verifica se Expr1 tem mesmo tipo ou é conversível para Expr2
+            if(tipoAssign1 instanceof CianetoClass && (!(tipoAssign2 instanceof CianetoClass) || tipoAssign2 != Type.nullType)) {
+        		error("Only allowed to compare a class with another instance of the same class or nil value");
+        	} else if (tipoAssign1 instanceof CianetoClass && tipoAssign2 instanceof CianetoClass) {
+        		if(!((CianetoClass)tipoAssign2).findParent(tipoAssign1.getName()))
+        			error("Only allowed to compare a class with its subclasses");
+        	} else if(tipoAssign1 == Type.stringType && (tipoAssign2 != Type.stringType || tipoAssign2 != Type.nullType)) {
+        		error("Only allowed to compare a String with another String or nil value");
+        	} else if(tipoAssign1 == Type.undefinedType && tipoAssign2 == Type.undefinedType) {
+        		error("Trying to compare undefined types");
+        	} else if (tipoAssign1 != tipoAssign2) {
+        		error("Trying to compare incompatible types");
+        	}           
         }
     }
 
     // Expression ::= SimpleExpression [ Relation SimpleExpression ]
     private Type expr() {
-        simpleExpr();
+    	Type tipoExpr1 = Type.undefinedType, tipoExpr2 = Type.undefinedType;
+    	boolean erro = false;
+    	
+        tipoExpr1 = simpleExpr();
         // Relation ::= “==” | “<” | “>” | “<=” | “>=” | “! =”
-        if (lexer.token == Token.EQ || lexer.token == Token.LT || lexer.token == Token.GT || lexer.token == Token.LE || lexer.token == Token.GE || lexer.token == Token.NOT) {
-            if (lexer.token == Token.NOT) {
-                next();
-                if (lexer.token != Token.ASSIGN) {
-                    error("Expecting '=' in expression");
-                } else {
-                    next();
-                }
-            }
-            simpleExpr(); // verificar se eh possivel relacionar o simpleExpr1 com simpleExpr2
-        } 
-        return null;
+        if(lexer.token == Token.LT || lexer.token == Token.GT || lexer.token == Token.LE || lexer.token == Token.GE) {
+        	next();
+        	tipoExpr2 = simpleExpr();
+        	if(tipoExpr1 != Type.intType || tipoExpr2 != Type.intType) {
+        		error("< > <= >= only applies to Int values");
+        		erro = true;
+        	}
+        } else if(lexer.token == Token.EQ || lexer.token == Token.NOT) {
+        	if(lexer.token == Token.NOT) {
+        		next();
+        		if (lexer.token != Token.ASSIGN)
+                    error("Expecting '=' in relation");
+        	}
+        	next();
+        	tipoExpr2 = simpleExpr();
+        	if(tipoExpr1 instanceof CianetoClass && (!(tipoExpr2 instanceof CianetoClass) || tipoExpr2 != Type.nullType)) {
+        		error("Only allowed to compare a class with another instance of the same class or nil value");
+        		erro = true;
+        	} else if (tipoExpr1 instanceof CianetoClass && tipoExpr2 instanceof CianetoClass) {
+        		if(!((CianetoClass)tipoExpr2).findParent(tipoExpr1.getName())) {
+        			error("Only allowed to compare a class with its subclasses");
+        			erro = true;
+        		}
+        	} else if(tipoExpr1 == Type.stringType && (tipoExpr2 != Type.stringType || tipoExpr2 != Type.nullType)) {
+        		error("Only allowed to compare a String with another String or nil value");
+        		erro = true;
+        	} else if(tipoExpr1 == Type.undefinedType && tipoExpr2 == Type.undefinedType) {
+        		error("Trying to compare undefined types");
+        		erro = true;
+        	} else if (tipoExpr1 != tipoExpr2) {
+        		error("Trying to compare incompatible types");
+        		erro = true;
+        	}
+        }
+
+        if(erro)
+        	return Type.undefinedType;
+        else
+        	return tipoExpr1;
     }
 
     // SimpleExpression ::= SumSubExpression { “++” SumSubExpression }
     private Type simpleExpr() {
-        sumSubExpr(); 
+    	Type tipoSimple1 = Type.undefinedType, tipoSimple2 = Type.undefinedType;
+    	boolean erro = false;
+    	
+        tipoSimple1 = sumSubExpr(); 
         while (lexer.token == Token.CONCAT) {
             next();
-            sumSubExpr(); // verificar se sumSubExpr é Int ou String
+            tipoSimple2 = sumSubExpr(); // verifica se sumSubExpr é Int ou String
+            if(tipoSimple1 != Type.intType && tipoSimple1 != Type.stringType || tipoSimple2 != Type.intType && tipoSimple2 != Type.stringType) {
+            	error("Concatenation only applies to Int or String values");
+            	erro = true;
+            }
+            tipoSimple1 = tipoSimple2;
         }
         
-        return null;
+        if(erro)
+        	return Type.undefinedType;
+        else
+        	return tipoSimple1;
     }
 
     // SumSubExpression ::= Term { LowOperator Term }
     private Type sumSubExpr() {
-        term();
-        while (lexer.token == Token.PLUS || lexer.token == Token.MINUS || lexer.token == Token.OR) { // lowOperator
+    	Type tipoSumSub1 = Type.undefinedType, tipoSumSub2 = Type.undefinedType;
+    	boolean oroperator;
+    	boolean erro = false;
+    	
+    	tipoSumSub1 = term();
+        while (true) { // lowOperator
+        	oroperator = false;
+        	if(lexer.token != Token.PLUS && lexer.token != Token.MINUS && lexer.token != Token.OR)
+        		break;
+        	else if(lexer.token == Token.OR)
+        		oroperator = true;
             next();
-            term(); // verificar se Term1 e Term2 são Int (quando PLUS ou MINUS) ou se são Boolean (quando OR)
+            tipoSumSub2 = term();
+            if(!oroperator) {
+            	if(tipoSumSub1 != Type.intType || tipoSumSub2 != Type.intType) { // verifica se Term1 e Term2 são Int (quando PLUS ou MINUS)
+            		error("+ and - only apply to Int values");
+            		erro = true;
+            	}
+            } else {
+            	if(tipoSumSub1 != Type.booleanType || tipoSumSub2 != Type.booleanType) { // verifica se são Boolean (quando OR)
+            		error("AND only apply to boolean values");
+            		erro = true;
+            	}
+            }
+            tipoSumSub1 = tipoSumSub2;
         }
         
-        return null;
+        if(erro)
+        	return Type.undefinedType;
+        else
+        	return tipoSumSub1;
     }
 
     // Term ::= SignalFactor { HighOperator SignalFactor }
-    private Expr term() {
-        signalFactor();
-        while (lexer.token == Token.MULT || lexer.token == Token.DIV || lexer.token == Token.AND) { // highOperator
+    private Type term() {
+    	Type tipoTerm1 = Type.undefinedType, tipoTerm2 = Type.undefinedType;
+    	boolean andoperator;
+    	boolean erro = false;
+    	
+        tipoTerm1 = signalFactor();
+        while (true) { // highOperator
+        	andoperator = false;
+        	if(lexer.token != Token.MULT && lexer.token != Token.DIV && lexer.token != Token.AND)
+        		break;
+        	else if(lexer.token == Token.AND)
+        		andoperator = true;
             next();
-            signalFactor(); // verificar se Term1 e Term2 são Int (quando MULT ou DIV) ou se são Boolean (quando AND)
+            tipoTerm2 = signalFactor();
+            if(!andoperator) {
+            	if(tipoTerm1 != Type.intType || tipoTerm2 != Type.intType) { // verifica se Term1 e Term2 são Int (quando MULT ou DIV)
+            		error("* and / only apply to Int values");
+            		erro = true;
+            	}
+            } else {
+            	if(tipoTerm1 != Type.booleanType || tipoTerm2 != Type.booleanType) { // verifica se são Boolean (quando AND)
+            		error("AND only apply to boolean values");
+            		erro = true;
+            	}
+            }
+            tipoTerm1 = tipoTerm2;
         }
         
-        return null;
+        if(erro)
+        	return Type.undefinedType;
+        else
+        	return tipoTerm1;
     }
 
     // SignalFactor ::= [ Signal ] Factor
     private Type signalFactor() {
+    	boolean sinal = false;
         if (lexer.token == Token.PLUS || lexer.token == Token.MINUS) { // positivo ou negativo
             next();
+            sinal = true;
         }
-        factor(); // se tiver signal, verificar se o factor é Int
+        Type tipoFactor = factor(); // se tiver signal, verifica se o factor é Int
+        if(sinal)
+        	if(tipoFactor != Type.intType)
+        		error("Only int values accept prefixed plus or minus signals");
         
-        return null;
+        return tipoFactor;
     }
     
     // Factor ::= BasicValue | “(” Expression “)” | “!” Factor | “nil” | ObjectCreation | PrimaryExpr
     private Type factor() {
-    	if(!startExpr(lexer.token)) {
+    	Type tipoFactor = Type.undefinedType;
+    	if(!startExpr(lexer.token))
     		error("Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr");
-    	} if(lexer.token != Token.LITERALINT && lexer.token != Token.STRING && lexer.token != Token.TRUE && lexer.token != Token.FALSE) {
+    	else if(lexer.token != Token.LITERALINT && lexer.token != Token.STRING && lexer.token != Token.TRUE && lexer.token != Token.FALSE)
     		error("Basic value (int, string or boolean) expected!");
+    	else if(lexer.token == Token.LITERALINT) {
+    		tipoFactor = Type.intType;
+    		next();
+    	} else if(lexer.token == Token.STRING) {
+    		tipoFactor = Type.stringType;
+    		next();
+    	}
+    	else if(lexer.token == Token.TRUE || lexer.token == Token.FALSE) {
+    		tipoFactor = Type.booleanType;
+    		next();
     	} else if(lexer.token == Token.LEFTPAR) {
     		next();
-    		expr();
+    		tipoFactor = expr();
     		if(lexer.token != Token.RIGHTPAR)
     			error("')' expected!");
-    	} else if (lexer.token == Token.NOT) {
+    	} else if (lexer.token == Token.NOT) { // isso aqui nao parece certo, pode gerar "! id ! id ! id ! id"
     		next();
-    		factor();
+    		tipoFactor = factor();
     	} else if (lexer.token == Token.ID){
-    		primaryExpr();
+    		tipoFactor = primaryExpr();
     	} else {
-    		primaryExpr();
+    		tipoFactor = primaryExpr();
     	}
     	
-    	return null;
+    	return tipoFactor;
     }
 
     /* PrimaryExpr ::= “super” “.” IdColon ExpressionList | “super” “.” Id | Id | Id “.” Id | 
@@ -623,10 +744,11 @@ public class Compiler {
 	 */
     // objectCreation foi adicionado aqui por questões de ambiguidade
     private Type primaryExpr() { // TODO: VERIFICAR SE O ID PODE SER O NOME DE UMA CLASSE OU APENAS UMA VARIAVEL DO OBJETO
-    	CianetoClass classe = symbolTable.getCurrentClass(), classeaux = null;
+    	CianetoClass classe = symbolTable.getCurrentClass();
     	CianetoClass parent = classe.getParent();
     	Method currentMethod = null;
     	Field currentField = null;
+    	Type tipoPrimary = Type.undefinedType;
     	
         if (lexer.token == Token.SUPER) {
             next();
@@ -650,7 +772,9 @@ public class Compiler {
             		if(currentMethod != null) {
             			String result = currentMethod.checkSignature(retorno);
             			if (!result.equals(""))
-            				error("Wrong usage of the method " + currentMethod.getName() + ": " + result);	
+            				error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
+            			else
+            				tipoPrimary = currentMethod.getType();
             		}
             	} else if(lexer.token == Token.ID) {
             		if(parent != null) {
@@ -662,7 +786,11 @@ public class Compiler {
             				String result = currentMethod.checkSignature(null);
             				if (!result.equals(""))
             					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
-            			}            				
+            				else
+            					tipoPrimary = currentMethod.getType();
+            			}  else {
+            				tipoPrimary = currentField.getType();
+            			}
             		}
             		next();
             	}
@@ -690,14 +818,9 @@ public class Compiler {
                 				String result = currentMethod.checkSignature(null);
                 				if (!result.equals(""))
                 					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
+                				else
+                					tipoPrimary = currentMethod.getType();
                 			}            				
-                		}
-                		next();
-                		ArrayList<Type> retorno = exprList();
-                		if(currentMethod != null) {
-                			String result = currentMethod.checkSignature(retorno);
-                			if (!result.equals(""))
-                				error("Wrong usage of the method " + result);	
                 		}
                 	} else if (lexer.token == Token.IDCOLON) {
                 		Type t  =  symbolTable.getInLocal(identifier);
@@ -714,14 +837,24 @@ public class Compiler {
                 		if(currentMethod != null) {
                 			String result = currentMethod.checkSignature(retorno);
                 			if (!result.equals(""))
-                				error("Wrong usage of the method " + result);	
+                				error("Wrong usage of the method " + result);
+                			else
+                				tipoPrimary = currentMethod.getType();
                 		}
                 	} else if (lexer.token == Token.NEW) {
-                		if( symbolTable.getInGlobal(identifier) == null )
+                		if( (classe = (CianetoClass)symbolTable.getInGlobal(identifier)) == null )
                 			error("Trying to create a new instance of an undefined class");
+                		else
+                			tipoPrimary = classe;
                 		next();
                 	}                     	
                 }
+            } else {
+            	Type t  =  symbolTable.getInLocal(identifier);
+        		if(t == null || t == Type.undefinedType)
+        			error("Trying to use a object that does not exist");
+        		else
+        			tipoPrimary = t;
             }
         } else if (lexer.token == Token.SELF) {
         	next();
@@ -729,7 +862,7 @@ public class Compiler {
         		next();
         		if(lexer.token != Token.ID && lexer.token != Token.IDCOLON) {
         			error("An identifier: or identifier were expected after the self call");
-        		} else if(lexer.token == Token.IDCOLON) {
+        		} else if(lexer.token == Token.IDCOLON) { // chama metodo de self
         			if(classe != null) {
             			currentMethod = classe.getMethod(lexer.getStringValue());
             			if(currentMethod == null)
@@ -740,9 +873,11 @@ public class Compiler {
             		if(currentMethod != null) {
             			String result = currentMethod.checkSignature(retorno);
             			if (!result.equals(""))
-            				error("Wrong usage of the method " + result);	
+            				error("Wrong usage of the method " + result);
+            			else
+            				tipoPrimary = currentMethod.getType();
             		}
-        		} else if(lexer.token == Token.ID) {
+        		} else if(lexer.token == Token.ID) { // chama metodo ou campo de self ou metodo de campo (classe) de self 
         			if(classe != null) {
             			currentMethod = classe.getMethod(lexer.getStringValue());
             			currentField = classe.getField(lexer.getStringValue());
@@ -752,7 +887,7 @@ public class Compiler {
             				String result = currentMethod.checkSignature(null);
             				if (!result.equals(""))
             					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
-            			}   
+            			}
         			}
         			next();
         			if(lexer.token == Token.DOT) {
@@ -761,7 +896,7 @@ public class Compiler {
         					error("An identifier: or identifier were expected after the self.Id call");
         				} else {
         					String memberName = lexer.getStringValue();
-        					if (lexer.token == Token.IDCOLON) {
+        					if (lexer.token == Token.IDCOLON) { 
         						next();
         						ArrayList<Type> retorno = exprList();
         						if(currentField != null && (currentField.getType() instanceof CianetoClass)) {
@@ -776,6 +911,8 @@ public class Compiler {
         									String result = currentMethod.checkSignature(retorno);
                 	            			if (!result.equals(""))
                 	            				error("Wrong usage of the method " + memberName + ": " + result);
+                	            			else
+                	            				tipoPrimary = currentMethod.getType();
         								}
         							}	
         						} else {
@@ -795,6 +932,10 @@ public class Compiler {
         									String result = currentMethod.checkSignature(null);
                 	            			if (!result.equals(""))
                 	            				error("Wrong usage of the method " + memberName + ": " + result);
+                	            			else
+                	            				tipoPrimary = currentMethod.getType();
+        								} else {
+        									tipoPrimary = currentField.getType();
         								}
         							}	
         						} else {
@@ -802,13 +943,21 @@ public class Compiler {
         						}
         					}
         				}
+        			} else {
+        				if(currentMethod != null)
+        					tipoPrimary = currentMethod.getType();
+        				else if(currentField != null)
+        					tipoPrimary = currentField.getType();
         			}
         		}
+        	} else {
+        		if(classe != null)
+        			tipoPrimary = classe;
         	}
         } else {
-            readExpr();
+            tipoPrimary = readExpr();
         }
-        return null;
+        return tipoPrimary;
     }
 
     // ExpressionList ::= Expression { “,” Expression } 
@@ -823,27 +972,32 @@ public class Compiler {
     }
 
     // ReadExpr ::= “In” “.” [ “readInt” | “readString” ]
-    private void readExpr() {
+    private Type readExpr() {
+    	Type tipoRead = Type.undefinedType;
         next();
         check(Token.DOT, "a '.' was expected after 'In'");
         next();
-        if (lexer.getStringValue().equals("readInt") && lexer.getStringValue().equals("readString")) {
+        if (!lexer.getStringValue().equals("readInt") && !lexer.getStringValue().equals("readString")) {
             error("'readInt' or 'readString' was expected after 'In.'");
-        }
+        } else if(lexer.getStringValue().equals("readInt")) {
+        	tipoRead = Type.intType;
+        } else {
+        	tipoRead = Type.stringType;
+        }    
+        next();
+        
+        return tipoRead;
     }
 
     // IfStat ::= “if” Expression “{” Statement “}” [ “else” “{” Statement “}” ]
     private void ifStat() {
         next();
-        expr();
+        Type tipo = expr();
+        if(tipo != Type.booleanType)
+        	error("If condition must be boolean");
         check(Token.LEFTCURBRACKET, "'{' expected after the 'if' expression");
         next();
-        statementList(); 
-        /* DUVIDA/Dúvida: Statement ou um StatementList ?
-        while (lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.ELSE) {
-            
-        } */
-        
+        statementList();         
         check(Token.RIGHTCURBRACKET, "'}' was expected");
         if (lexer.token == Token.ELSE) {
             next();
@@ -858,7 +1012,9 @@ public class Compiler {
     // WhileStat ::= “while” Expression “{” StatementList “}”
     private void whileStat() {
         next();
-        expr();
+        Type tipo = expr();
+        if(tipo != Type.booleanType)
+        	error("While condition must be boolean");
         check(Token.LEFTCURBRACKET, "'{' expected after the 'while' expression");
         next();
         statementList();
@@ -867,9 +1023,14 @@ public class Compiler {
     }
 
     // ReturnStat ::= “return” Expression
-    private void returnStat() {
+    private void returnStat() { 
+    	Method currentMethod = symbolTable.getCurrentMethod();
         next();
-        expr();
+        Type tipo = expr();
+        if(currentMethod != null)
+        	if(currentMethod.getType() != tipo)
+        		error("Type of return expression isn't the same of the method declaration");
+    
     }
 
     // WriteStat ::= “Out” “.” [ “print:” | “println:” ] Expression
@@ -877,12 +1038,12 @@ public class Compiler {
         next();
         check(Token.DOT, "a '.' was expected after 'Out'");
         next();
-        if (!lexer.getStringValue().equals("print:") && !lexer.getStringValue().equals("println:")) {
+        if (!lexer.getStringValue().equals("print:") && !lexer.getStringValue().equals("println:"))
             error("'print:' or 'println:' was expected after 'Out.'");
-        }
-        next();
-        String printName = lexer.getStringValue();
-        expr();
+    	next();
+    	Type tipo = expr();
+    	if(tipo != Type.stringType || tipo != Type.intType)
+    		error("Print or println parameter must be string or int");
     }
 
     // RepeatStat ::= “repeat” StatementList “until” Expression
@@ -891,7 +1052,9 @@ public class Compiler {
         statementList();
         check(Token.UNTIL, "'until' was expected");
         next();
-        expr();
+        Type tipo = expr();
+        if(tipo != Type.booleanType)
+        	error("Repeat until condition must be boolean");
     }
 
     // Não existe originalmente, mas em Statement eh ::= “break” “;”
@@ -901,20 +1064,24 @@ public class Compiler {
 
     // LocalDec ::= “var” Type IdList [ “=” Expression ] “;”
     private void localDec() {
-        // TODO: Paramos aqui...
-        ArrayList<String> identifiers = null;
         next();
         Type t = type();
         Type e;
-        identifiers = idList(); // verificar se nao eh repetido
+        ArrayList<String> identifiers = idList(); // verificar se nao eh repetido
+        for(String id : identifiers) {
+        	if(symbolTable.getInLocal(id) != null)
+        		error("There's another variable with the same name ("+id+")");
+        	else
+        		symbolTable.putInLocal(id, t);
+        }
         
         if (lexer.token == Token.ASSIGN) {
         	next();
+        	e = expr();
         	if( identifiers.size() == 1) {
         		// check if there is just one variable    
-        		e = expr();
         		if (t != e) {
-        			error("Trying to assign an expression of type " + e.getName() + "to an field of type "+ t.getName());
+        			error("Trying to assign an expression of type " + e.getName() + "to an variable of type "+ t.getName());
         		}
     		} else {
     			error("You can't assign a value when declaring multiple variables!");
@@ -930,10 +1097,10 @@ public class Compiler {
      */
     // AssertStat ::= “assert” Expression “,” StringValue
     public void assertStat() {
-
         next();
-        // int lineNumber = lexer.getLineNumber();
-        expr();
+        Type tipo = expr();
+        if(tipo != Type.booleanType)
+        	error("Assert condition must have boolean type");
         if (lexer.token != Token.COMMA) {
             error("',' expected after the expression of the 'assert' statement");
         }
@@ -941,7 +1108,6 @@ public class Compiler {
         if (lexer.token != Token.LITERALSTRING) {
             error("A literal string expected after the ',' of the 'assert' statement");
         }
-        String message = lexer.getLiteralStringValue();
         next();
     }
 
