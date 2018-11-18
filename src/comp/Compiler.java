@@ -191,7 +191,12 @@ public class Compiler {
         }
         
         // colocando classe na symbol table
-        symbolTable.putInGlobal(className, classe);
+        if(symbolTable.getInGlobal(className) != null)
+    		error("A class with the name " +className+ " is already declared.");
+    	else {
+    		symbolTable.putInGlobal(className, classe);
+    		symbolTable.setCurrentClass(classe);
+    	}
         
         next();
 
@@ -398,7 +403,6 @@ public class Compiler {
         String methodName = new String("");
         ArrayList<Field> parameters = null;
         Type t = Type.undefinedType;
-        // Já esta verificando pela keyword "func" acima meu chapa, fique tranquilo...
         next();
         if (lexer.token == Token.ID) {
             methodName = lexer.getStringValue();
@@ -411,7 +415,7 @@ public class Compiler {
             parameters = formalParamDec();
             for (Field f: parameters){
                 if( symbolTable.getInLocal(f.getName()) == null ) {
-                    symbolTable.putInLocal( f.getName(),f.getType() );
+                    symbolTable.putInLocal(f.getName(), f.getType());
                 } else {
                     error("Duplicated parameter name");
                 }
@@ -435,6 +439,8 @@ public class Compiler {
 
         next();
         method = new Method(t, parameters, methodName);
+        
+        symbolTable.removeLocalIdent();
         return method;
     }
 
@@ -616,34 +622,105 @@ public class Compiler {
 	“self” ”.” Id “.” Id | 	ReadExpr
 	 */
     // objectCreation foi adicionado aqui por questões de ambiguidade
-    private Type primaryExpr() {
-    	boolean correct = true;
+    private Type primaryExpr() { // TODO: VERIFICAR SE O ID PODE SER O NOME DE UMA CLASSE OU APENAS UMA VARIAVEL DO OBJETO
+    	CianetoClass classe = symbolTable.getCurrentClass(), classeaux = null;
+    	CianetoClass parent = classe.getParent();
+    	Method currentMethod = null;
+    	Field currentField = null;
+    	
         if (lexer.token == Token.SUPER) {
             next();
             if (lexer.token != Token.DOT) {
                 error("A '.' was expected after the 'super' keyword");
-                correct = false;
             }
             next();
             if (lexer.token != Token.IDCOLON && lexer.token != Token.ID) {
                 error("An identifier: or identifier were expected after the super call");
-                correct = false;
             } else {
-                next();
-                if (lexer.token == Token.IDCOLON)
-                	exprList();
+            	if(parent == null)
+            		error("Class " + classe.getName() + " doesn't extends another class");
+            	if (lexer.token == Token.IDCOLON) {
+            		if(parent != null) {
+            			currentMethod = parent.getMethod(lexer.getStringValue());
+            			if(currentMethod == null)
+            				error("Superclass has no method named " + lexer.getStringValue());
+            		}
+            		next();
+            		ArrayList<Type> retorno = exprList();
+            		if(currentMethod != null) {
+            			String result = currentMethod.checkSignature(retorno);
+            			if (!result.equals(""))
+            				error("Wrong usage of the method " + currentMethod.getName() + ": " + result);	
+            		}
+            	} else if(lexer.token == Token.ID) {
+            		if(parent != null) {
+            			currentMethod = parent.getMethod(lexer.getStringValue());
+            			currentField = parent.getField(lexer.getStringValue());
+            			if(currentMethod == null && currentField == null)
+            				error("Superclass has no method or field named " + lexer.getStringValue());
+            			else if(currentMethod != null) {
+            				String result = currentMethod.checkSignature(null);
+            				if (!result.equals(""))
+            					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
+            			}            				
+            		}
+            		next();
+            	}
             }
-        } else if (lexer.token == Token.ID) {
+        } else if (lexer.token == Token.ID) { // Se não for super, mas sim um id
+        	String identifier = lexer.getStringValue();
             next();
             if (lexer.token == Token.DOT) {
                 next();
                 if (lexer.token != Token.IDCOLON && lexer.token != Token.ID && lexer.token != Token.NEW) {
                     error("An identifier: or identifier or a 'new' were expected after the id call");
-                    correct = false;
                 } else {
-                    next();
-                    if (lexer.token == Token.IDCOLON)
-                    	exprList();
+                	if(lexer.token == Token.ID) {
+                		Type t  =  symbolTable.getInLocal(identifier);
+                		if(t == null || t == Type.undefinedType)
+                			error("Trying to use a object that does not exist");
+                		else {
+                			classe = (CianetoClass) t;
+                			currentMethod = classe.getMethod(lexer.getStringValue());
+                			currentField = classe.getField(lexer.getStringValue());
+                			
+                			if(currentMethod == null && currentField == null)
+                				error("Class has no method or field named " + lexer.getStringValue());
+                			else if(currentMethod != null) {
+                				String result = currentMethod.checkSignature(null);
+                				if (!result.equals(""))
+                					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
+                			}            				
+                		}
+                		next();
+                		ArrayList<Type> retorno = exprList();
+                		if(currentMethod != null) {
+                			String result = currentMethod.checkSignature(retorno);
+                			if (!result.equals(""))
+                				error("Wrong usage of the method " + result);	
+                		}
+                	} else if (lexer.token == Token.IDCOLON) {
+                		Type t  =  symbolTable.getInLocal(identifier);
+                		if(t == null || t == Type.undefinedType)
+                			error("Trying to use a object that does not exist");
+                		else {
+                			classe = (CianetoClass) t;
+                			currentMethod = classe.getMethod(lexer.getStringValue());
+                			if(currentMethod == null)
+                				error("Class has no method named " + lexer.getStringValue());
+                		}
+                		next();
+                		ArrayList<Type> retorno = exprList();
+                		if(currentMethod != null) {
+                			String result = currentMethod.checkSignature(retorno);
+                			if (!result.equals(""))
+                				error("Wrong usage of the method " + result);	
+                		}
+                	} else if (lexer.token == Token.NEW) {
+                		if( symbolTable.getInGlobal(identifier) == null )
+                			error("Trying to create a new instance of an undefined class");
+                		next();
+                	}                     	
                 }
             }
         } else if (lexer.token == Token.SELF) {
@@ -652,21 +729,78 @@ public class Compiler {
         		next();
         		if(lexer.token != Token.ID && lexer.token != Token.IDCOLON) {
         			error("An identifier: or identifier were expected after the self call");
-                    correct = false;
         		} else if(lexer.token == Token.IDCOLON) {
-        			next();
-        			exprList();
+        			if(classe != null) {
+            			currentMethod = classe.getMethod(lexer.getStringValue());
+            			if(currentMethod == null)
+            				error("Class " +classe.getName()+ " has no method named " + lexer.getStringValue());
+            		}
+            		next();
+            		ArrayList<Type> retorno = exprList();
+            		if(currentMethod != null) {
+            			String result = currentMethod.checkSignature(retorno);
+            			if (!result.equals(""))
+            				error("Wrong usage of the method " + result);	
+            		}
         		} else if(lexer.token == Token.ID) {
+        			if(classe != null) {
+            			currentMethod = classe.getMethod(lexer.getStringValue());
+            			currentField = classe.getField(lexer.getStringValue());
+            			if(currentMethod == null && currentField == null)
+            				error("Class " + classe.getName() + " has no method or field named " + lexer.getStringValue());
+            			else if(currentMethod != null) {
+            				String result = currentMethod.checkSignature(null);
+            				if (!result.equals(""))
+            					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
+            			}   
+        			}
         			next();
         			if(lexer.token == Token.DOT) {
         				next();
         				if(lexer.token != Token.IDCOLON && lexer.token != Token.ID) {
         					error("An identifier: or identifier were expected after the self.Id call");
-        					correct = false;
         				} else {
-        					next();
-        					if (lexer.token == Token.IDCOLON)
-        						exprList();
+        					String memberName = lexer.getStringValue();
+        					if (lexer.token == Token.IDCOLON) {
+        						next();
+        						ArrayList<Type> retorno = exprList();
+        						if(currentField != null && (currentField.getType() instanceof CianetoClass)) {
+        							classe = (CianetoClass) symbolTable.getInGlobal(currentField.getName());
+        							if(classe == null)
+        								error("Trying to call a method from a field that is not a class");
+        							else {
+        								currentMethod = classe.getMethod(memberName);
+        								if(currentMethod == null)
+        									error("Calling method " +memberName+ " that doesn't exist in class " + classe.getName());
+        								else {
+        									String result = currentMethod.checkSignature(retorno);
+                	            			if (!result.equals(""))
+                	            				error("Wrong usage of the method " + memberName + ": " + result);
+        								}
+        							}	
+        						} else {
+        							error("Trying to call a method from a property that is not a class");
+        						}
+        					} else if(lexer.token == Token.ID) {
+        						if(currentField != null && (currentField.getType() instanceof CianetoClass)) {
+        							classe = (CianetoClass) symbolTable.getInGlobal(currentField.getName());
+        							if(classe == null)
+        								error("Trying to call a method from a field that is not a class");
+        							else {
+        								currentMethod = classe.getMethod(memberName);
+        								currentField = classe.getField(memberName);
+        								if(currentMethod == null && currentField == null)
+        									error("Calling member " +memberName+ " that doesn't exist in class " + classe.getName());
+        								else if(currentMethod != null){
+        									String result = currentMethod.checkSignature(null);
+                	            			if (!result.equals(""))
+                	            				error("Wrong usage of the method " + memberName + ": " + result);
+        								}
+        							}	
+        						} else {
+        							error("Trying to call a method or a public field from a property that is not a class");
+        						}
+        					}
         				}
         			}
         		}
@@ -678,12 +812,14 @@ public class Compiler {
     }
 
     // ExpressionList ::= Expression { “,” Expression } 
-    private void exprList() {
-    	expr();
+    private ArrayList<Type> exprList() {
+    	ArrayList<Type> at = new ArrayList<Type>();
+    	at.add(expr());
     	while (lexer.token == Token.COMMA) {
     		next();
-    		expr();
+    		at.add(expr());
     	}
+    	return at;
     }
 
     // ReadExpr ::= “In” “.” [ “readInt” | “readString” ]

@@ -38,4 +38,21 @@ public class Method {
 	private String name;
 	private Type type;
 	private ArrayList<Field> parameters;
+	
+	// Returns "" if okay, else a multiline error message.
+	public String checkSignature(ArrayList<Type> parameters) {
+		String retorno = "";
+		int tam = parameters.size();
+		if(parameters == null && this.parameters != null || parameters != null && this.parameters == null || parameters.size() != this.parameters.size())
+			return  "Invalid number of parameters";
+		
+		for(int i = 0; i < tam; i++) {
+			if(parameters.get(i) != this.parameters.get(i).getType()) {
+				retorno.concat("\n\tExpected "+this.parameters.get(i).getType().getName() + " but received " + parameters.get(i).getName() + "at the "+ (i+1) +"º parameter");
+			}
+		}
+		return retorno;
+		
+	}
+	
 }

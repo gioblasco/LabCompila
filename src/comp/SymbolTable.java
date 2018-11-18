@@ -7,7 +7,9 @@
 package comp;
 
 import java.util.*;
+
 import ast.Type;
+import ast.CianetoClass;
 
 public class SymbolTable {
 
@@ -31,6 +33,14 @@ public class SymbolTable {
     public Type getInGlobal(String key){
         return globalTable.get(key);
     }
+    
+    public CianetoClass getCurrentClass() {
+    	return currentClass;
+    }
+    
+    public void setCurrentClass(CianetoClass classe) {
+    	this.currentClass = classe;
+    }
 
     public void removeLocalIdent() {
         // remove all local identifiers from the table
@@ -39,4 +49,5 @@ public class SymbolTable {
     
     private Hashtable<String, Type> localTable;
     private Hashtable<String, Type> globalTable;
+    private CianetoClass currentClass;
 }
