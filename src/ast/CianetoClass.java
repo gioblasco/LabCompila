@@ -16,8 +16,7 @@ public class CianetoClass extends Type {
 	   this.parent = parent;
 	   this.publicMethodList = new Hashtable<String, Method>();
 	   this.privateMethodList = new Hashtable<String, Method>();
-	   this.publicFieldList = new Hashtable<String, Field>();
-	   this.privateFieldList = new Hashtable<String, Field>();
+	   this.fieldList = new Hashtable<String, Field>();
 	}
 	
 	public boolean isOpen() {
@@ -30,13 +29,6 @@ public class CianetoClass extends Type {
 
 	public void setParent(CianetoClass parent) {
 		this.parent = parent;
-	}
-	
-	public Field getField(String fieldName) {
-		Field tempField = this.privateFieldList.get(fieldName);
-		if(tempField == null)
-			tempField = this.publicFieldList.get(fieldName);
-		return tempField;
 	}
 	
 	public Method getMethod(String methodName) {
@@ -74,16 +66,12 @@ public class CianetoClass extends Type {
 	public Hashtable<String, Method> getPrivateMethod() {
 		return this.privateMethodList;
 	}
-
-	public Hashtable<String, Field> getPublicField() {
-		return publicFieldList;
-	}
 	
-	public Hashtable<String, Field> getPrivateField() {
-		return privateFieldList;
+	public Hashtable<String, Field> getFieldList() {
+		return fieldList;
 	}
 
-	private Hashtable<String, Field> publicFieldList, privateFieldList;
+	private Hashtable<String, Field> fieldList;
 	private Hashtable<String, Method> publicMethodList, privateMethodList;
 	private CianetoClass parent;
 	private boolean open;

@@ -215,44 +215,19 @@ public class Compiler {
             }
             if (lexer.token == Token.VAR) {
                 field = fieldDec();
+                if(qualifier.contains("override") || qualifier.contains("public")) {
+                	error("A field must be declared private");
+                }
                 for(Field f: field) {
+                	tempField = classe.getFieldList().get(f.getName());
+                	if(tempField != null)
+                		error("Field with the name " +f.getName()+ " has already been declared.");
+                	else
+                		classe.getFieldList().put(f.getName(), f);
                 	if(f.getName().equals(classe.getName())) {
             			error("Field name is equal class name " + classe.getName());
             		}
                 }
-                if(qualifier.contains("override")) {
-                	if(qualifier.contains("private")) {
-                		error("Cannot override a private field!");
-                    } else { // public with override
-                    	for(Field f : field){
-                    		// verificar se ja nao existe na classe atual
-                            tempField = classe.getField(f.getName());
-                            if(tempField == null)
-                            	tempMethod = classe.getPrivateMethod().get(f.getName());
-                            if(tempMethod == null)
-                            	tempMethod = classe.getPublicMethod().get(f.getName());
-                            if(tempField != null || tempMethod != null)
-                            	error("Field has the same name as another member in the scope.");
-                            else
-                            	classe.getPublicField().put(f.getName(), f);
-                        }
-                    }
-                } else { // Sem @override
-                	for(Field f : field){
-	                    tempField = classe.getField(f.getName()); // verifica se n existe na atual
-	                    tempMethod = classe.getPrivateMethod().get(f.getName());
-                        if(tempMethod == null)
-                        	tempMethod = classe.getPublicMethod().get(f.getName());
-	                    if(tempField != null || tempMethod != null)
-	                        error("Field has the same name as another member in the scope or in the parent (not using override)");
-	                    else{
-	                        if(qualifier.contains("private"))
-	                            classe.getPrivateField().put(f.getName(),f);
-	                        else
-	                            classe.getPublicField().put(f.getName(), f);
-	                    }
-                	}
-                } 
             } else if (lexer.token == Token.FUNC) {
                 method = methodDec();
                 if(method.getName().equals(classe.getName()))
@@ -266,7 +241,7 @@ public class Compiler {
                         if(tempMethod == null)
                             tempMethod = classe.getPublicMethod().get(method.getName());
                         if(tempMethod == null)
-                        	tempField = classe.getField(method.getName());
+                        	tempField = classe.getFieldList().get(method.getName());
                         if(tempMethod != null|| tempField != null)
                         	error("Method has the same name as another member in the scope.");
                         else {
@@ -280,7 +255,7 @@ public class Compiler {
                     }
                 } else { // Sem @override
                     tempMethod = classe.getMethod(method.getName());
-                    tempField = classe.getField(method.getName());
+                    tempField = classe.getFieldList().get(method.getName());
                     if(tempMethod != null || tempField != null)
                         error("Method has the same name as another member in the scope or in the parent (not using override)");
                     else{
@@ -779,17 +754,14 @@ public class Compiler {
             	} else if(lexer.token == Token.ID) {
             		if(parent != null) {
             			currentMethod = parent.getMethod(lexer.getStringValue());
-            			currentField = parent.getField(lexer.getStringValue());
-            			if(currentMethod == null && currentField == null)
-            				error("Superclass has no method or field named " + lexer.getStringValue());
-            			else if(currentMethod != null) {
+            			if(currentMethod == null)
+            				error("Superclass has no method named " + lexer.getStringValue());
+            			else {
             				String result = currentMethod.checkSignature(null);
             				if (!result.equals(""))
             					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
             				else
             					tipoPrimary = currentMethod.getType();
-            			}  else {
-            				tipoPrimary = currentField.getType();
             			}
             		}
             		next();
@@ -810,7 +782,7 @@ public class Compiler {
                 		else {
                 			classe = (CianetoClass) t;
                 			currentMethod = classe.getMethod(lexer.getStringValue());
-                			currentField = classe.getField(lexer.getStringValue());
+                			currentField = classe.getFieldList().get(lexer.getStringValue());
                 			
                 			if(currentMethod == null && currentField == null)
                 				error("Class has no method or field named " + lexer.getStringValue());
@@ -820,7 +792,9 @@ public class Compiler {
                 					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
                 				else
                 					tipoPrimary = currentMethod.getType();
-                			}            				
+                			} else {
+                				tipoPrimary = currentField.getType();
+                			}
                 		}
                 	} else if (lexer.token == Token.IDCOLON) {
                 		Type t  =  symbolTable.getInLocal(identifier);
@@ -880,7 +854,7 @@ public class Compiler {
         		} else if(lexer.token == Token.ID) { // chama metodo ou campo de self ou metodo de campo (classe) de self 
         			if(classe != null) {
             			currentMethod = classe.getMethod(lexer.getStringValue());
-            			currentField = classe.getField(lexer.getStringValue());
+            			currentField = classe.getFieldList().get(lexer.getStringValue());
             			if(currentMethod == null && currentField == null)
             				error("Class " + classe.getName() + " has no method or field named " + lexer.getStringValue());
             			else if(currentMethod != null) {
@@ -925,8 +899,7 @@ public class Compiler {
         								error("Trying to call a method from a field that is not a class");
         							else {
         								currentMethod = classe.getMethod(memberName);
-        								currentField = classe.getField(memberName);
-        								if(currentMethod == null && currentField == null)
+        								if(currentMethod == null)
         									error("Calling member " +memberName+ " that doesn't exist in class " + classe.getName());
         								else if(currentMethod != null){
         									String result = currentMethod.checkSignature(null);
@@ -934,12 +907,10 @@ public class Compiler {
                 	            				error("Wrong usage of the method " + memberName + ": " + result);
                 	            			else
                 	            				tipoPrimary = currentMethod.getType();
-        								} else {
-        									tipoPrimary = currentField.getType();
         								}
         							}	
         						} else {
-        							error("Trying to call a method or a public field from a property that is not a class");
+        							error("Trying to call a method from a property that is not a class");
         						}
         					}
         				}
@@ -1109,18 +1080,6 @@ public class Compiler {
             error("A literal string expected after the ',' of the 'assert' statement");
         }
         next();
-    }
-
-    private int literalInt() {
-
-        LiteralInt e = null;
-
-        // the number value is stored in lexer.getToken().value as an object of
-        // Integer.
-        // Method intValue returns that value as an value of type int.
-        int value = lexer.getNumberValue();
-        next();
-        return value;
     }
 
     private static boolean startExpr(Token token) {
