@@ -90,6 +90,7 @@ public class Compiler {
         int lineNumber = lexer.getLineNumber();
         next();
         ArrayList<Object> metaobjectParamList = new ArrayList<>();
+        // TODO: Every program must have a class named Program with a parameterless method called run.
         boolean getNextToken = false;
         if (lexer.token == Token.LEFTPAR) {
             // metaobject call with parameters
@@ -284,6 +285,7 @@ public class Compiler {
         if (lexer.token != Token.SEMICOLON) {
             error("Semicolon Expected");
         }
+        next();
         return field;
     }
 
@@ -333,6 +335,7 @@ public class Compiler {
                 break;
             }
         }
+
         return temp;
     }
 
@@ -479,6 +482,7 @@ public class Compiler {
                 break;
             case SEMICOLON:
                 next();
+                checkSemiColon = false;
                 break;
             case REPEAT:
                 repeatStat();
@@ -500,6 +504,7 @@ public class Compiler {
         }
         if (checkSemiColon) {
             check(Token.SEMICOLON, "';' expected");
+            next();
         }
     }
 
@@ -511,18 +516,16 @@ public class Compiler {
         if (lexer.token == Token.ASSIGN) {
             next();
             tipoAssign2 = expr(); // verifica se Expr1 tem mesmo tipo ou é conversível para Expr2
-            if(tipoAssign1 instanceof CianetoClass && (!(tipoAssign2 instanceof CianetoClass) || tipoAssign2 != Type.nullType)) {
-        		error("Only allowed to compare a class with another instance of the same class or nil value");
+            if(tipoAssign1 instanceof CianetoClass && (!(tipoAssign2 instanceof CianetoClass) && tipoAssign2 != Type.nullType)) {
+        		error("Only allowed to assign a class with another instance of the same class or nil value");
         	} else if (tipoAssign1 instanceof CianetoClass && tipoAssign2 instanceof CianetoClass) {
         		if(!((CianetoClass)tipoAssign2).findParent(tipoAssign1.getName()))
-        			error("Only allowed to compare a class with its subclasses");
+        			error("Only allowed to assign a class with its subclasses");
         	} else if(tipoAssign1 == Type.stringType && (tipoAssign2 != Type.stringType || tipoAssign2 != Type.nullType)) {
-        		error("Only allowed to compare a String with another String or nil value");
+        		error("Only allowed to assing a String with another String or nil value");
         	} else if(tipoAssign1 == Type.undefinedType && tipoAssign2 == Type.undefinedType) {
-        		error("Trying to compare undefined types");
-        	} else if (tipoAssign1 != tipoAssign2) {
-        		error("Trying to compare incompatible types");
-        	}           
+        		error("Trying to assign undefined types");
+        	}         
         }
     }
 
@@ -822,7 +825,7 @@ public class Compiler {
                 		if( (classe = (CianetoClass)symbolTable.getInGlobal(identifier)) == null )
                 			error("Trying to create a new instance of an undefined class");
                 		else
-                			tipoPrimary = classe;
+                			tipoPrimary = Type.nullType;
                 		next();
                 	}                     	
                 }
@@ -1060,7 +1063,6 @@ public class Compiler {
     		} else {
     			error("You can't assign a value when declaring multiple variables!");
     		}
-        	
 		}
 
     }

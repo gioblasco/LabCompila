@@ -1,18 +1,14 @@
 Relatorio do Compilador
 
 0 de um total de 5 erros que deveriam ser sinalizados nao o foram (0%)
-3 erros foram sinalizados na linha errada (60%)
+2 erros foram sinalizados na linha errada (40%)
 Todos os erros que deveriam ter sido sinalizados o foram
 ######################################################
 Erros que foram sinalizados na linha errada:
 
 ER-SEM60.ci
     correto:    23, Method 'p' was not found in the public interface of 'A' or its superclasses (comp.Compiler.factor())
-    sinalizado: 16, ';' expected
-
-ER-SEM61.ci
-    correto:    36, Method 's' was not found in class 'C' or its superclasses (comp.Compiler.factor())
-    sinalizado: 35, ';' expected
+    sinalizado: 34, ';' expected
 
 ER-SEM62.ci
     correto:    16, Identifier 'a' was not found (comp.Compiler.factor())
@@ -31,5 +27,10 @@ The 'cep' message is:      "Method 'p' was not found in class 'Program' or its s
 ER-SEM70.ci
 The compiler message was: "Method m has the same name as another member in the scope or in the parent (not using override)"
 The 'cep' message is:      "Method 'm' is being redefined"
+
+
+ER-SEM61.ci
+The compiler message was: "Class has no method or field named s"
+The 'cep' message is:      "Method 's' was not found in class 'C' or its superclasses"
 
 
