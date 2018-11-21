@@ -164,6 +164,8 @@ public class Compiler {
             error("Identifier expected in class declaration");
         } else {
         	className = lexer.getStringValue();
+        	if(symbolTable.getInGlobal(className) != null)
+        		error("A class with the name " +className+ " is already declared.");
         }
         next();
         if (lexer.token == Token.EXTENDS) {
@@ -184,29 +186,24 @@ public class Compiler {
         }
         
         CianetoClass classe = new CianetoClass(className, open, (CianetoClass)parent);
+       
+    	if(symbolTable.getInGlobal(className) == null)
+    		symbolTable.putInGlobal(className, classe);
+    	
+    	symbolTable.setCurrentClass(classe);
 
-        memberList(classe);
+        memberList();
         if (lexer.token != Token.END) {
             error("'end' expected in class declaration");
         }
-        
-        // colocando classe na symbol table
-        if(symbolTable.getInGlobal(className) != null)
-    		error("A class with the name " +className+ " is already declared.");
-    	else {
-    		symbolTable.putInGlobal(className, classe);
-    		symbolTable.setCurrentClass(classe);
-    	}
         
         next();
 
     }
 
     // MemberList ::= { [ Qualifier ] Member }
-    private void memberList(CianetoClass classe) { //checar se o nome do membro nao eh igual ao da classe
-        Method method, tempMethod = null;
-        ArrayList<Field> field;
-        Field tempField = null;
+    private void memberList() { //checar se o nome do membro nao eh igual ao da classe
+        CianetoClass classe = symbolTable.getCurrentClass();
         String qualifier;
     	while (true) {
             qualifier = qualifier();
@@ -214,57 +211,9 @@ public class Compiler {
             	error("A final class cannot have final members. It's redudant.");
             }
             if (lexer.token == Token.VAR) {
-                field = fieldDec();
-                if(qualifier.contains("override") || qualifier.contains("public")) {
-                	error("A field must be declared private");
-                }
-                for(Field f: field) {
-                	tempField = classe.getFieldList().get(f.getName());
-                	if(tempField != null)
-                		error("Field with the name " +f.getName()+ " has already been declared.");
-                	else
-                		classe.getFieldList().put(f.getName(), f);
-                	if(f.getName().equals(classe.getName())) {
-            			error("Field name is equal class name " + classe.getName());
-            		}
-                }
+                fieldDec(qualifier);
             } else if (lexer.token == Token.FUNC) {
-                method = methodDec();
-                if(method.getName().equals(classe.getName()))
-                	error("Method name is equal to the class name");
-                if(qualifier.contains("override")) {
-                	if(qualifier.contains("private")) {
-                		error("Cannot override a private method!");
-                    } else { // public with override
-                        // verificar se ja nao existe na classe atual
-                        tempMethod = classe.getPrivateMethod().get(method.getName());
-                        if(tempMethod == null)
-                            tempMethod = classe.getPublicMethod().get(method.getName());
-                        if(tempMethod == null)
-                        	tempField = classe.getFieldList().get(method.getName());
-                        if(tempMethod != null|| tempField != null)
-                        	error("Method has the same name as another member in the scope.");
-                        else {
-                            tempMethod = (classe.getParent() != null ) ? classe.getParent().getPublicMethod(method.getName()) : null;
-                            if(tempMethod == null) {
-                                error("Trying to override a non existent method");
-                            } else {
-                                classe.getPublicMethod().put(method.getName(), method);
-                            }
-                        }
-                    }
-                } else { // Sem @override
-                    tempMethod = classe.getMethod(method.getName());
-                    tempField = classe.getFieldList().get(method.getName());
-                    if(tempMethod != null || tempField != null)
-                        error("Method has the same name as another member in the scope or in the parent (not using override)");
-                    else{
-                        if(qualifier.contains("private"))
-                            classe.getPrivateMethod().put(method.getName(),method);
-                        else
-                            classe.getPublicMethod().put(method.getName(),method);
-                    }
-                } 
+                methodDec(qualifier);
             } else {
                 break;
             }
@@ -306,8 +255,15 @@ public class Compiler {
     }
 
     // FieldDec ::= “var” Type IdList “;”
-    private ArrayList<Field> fieldDec() {
+    private ArrayList<Field> fieldDec(String qualifier) {
         ArrayList<Field> field = new ArrayList<Field>();
+        Field tempField = null;
+        CianetoClass classe = symbolTable.getCurrentClass();
+        
+        if(qualifier.contains("override") || qualifier.contains("public")) {
+        	error("A field must be declared private");
+        }
+        
         // já está sendo verificado se chamou o var, fique tranquilo...
     	next();
         Type type = type();
@@ -315,8 +271,16 @@ public class Compiler {
 
         for(String name: idList) {
             field.add(new Field(type, name));
+            if(name.equals(classe.getName())) {
+    			error("Field name is equal class name " + classe.getName());
+    		}
+            tempField = classe.getFieldList().get(name);
+        	if(tempField != null)
+        		error("Field with the name " +name+ " has already been declared.");
+        	else
+        		classe.getFieldList().put(name, tempField);
         }
-
+  
         if (lexer.token != Token.SEMICOLON) {
             error("Semicolon Expected");
         }
@@ -373,10 +337,12 @@ public class Compiler {
     }
 
     // MethodDec ::= “func” IdColon FormalParamDec [ “->” Type ] “{” StatementList “}” | “func” Id [ “->” Type ] “{” StatementList “}”
-    private Method methodDec() {
-        Method method = null;
+    private Method methodDec(String qualifier) {
+        Method method = null, tempMethod = null;
+        Field tempField = null;
         String methodName = new String("");
         ArrayList<Field> parameters = null;
+        CianetoClass classe = symbolTable.getCurrentClass();
         Type t = Type.undefinedType;
         next();
         if (lexer.token == Token.ID) {
@@ -403,11 +369,50 @@ public class Compiler {
             next();
             t = type();
         }
+        
+        method = new Method(t, parameters, methodName);
+        
+        if(methodName.equals(classe.getName()))
+        	error("Method name is equal to the class name");
+        if(qualifier.contains("override")) {
+        	if(qualifier.contains("private")) {
+        		error("Cannot override a private method!");
+            } else { // public with override
+                // verificar se ja nao existe na classe atual
+                tempMethod = classe.getPrivateMethod().get(method.getName());
+                if(tempMethod == null)
+                    tempMethod = classe.getPublicMethod().get(method.getName());
+                if(tempMethod == null)
+                	tempField = classe.getFieldList().get(method.getName());
+                if(tempMethod != null|| tempField != null)
+                	error("Method " +methodName+ " has the same name as another member in the scope.");
+                else {
+                    tempMethod = (classe.getParent() != null ) ? classe.getParent().getPublicMethod(method.getName()) : null;
+                    if(tempMethod == null) {
+                        error("Trying to override a non existent method " + methodName);
+                    } else {
+                        classe.getPublicMethod().put(method.getName(), method);
+                    }
+                }
+            }
+        } else { // Sem @override
+            tempMethod = classe.getMethod(method.getName());
+            tempField = classe.getFieldList().get(method.getName());
+            if(tempMethod != null || tempField != null)
+                error("Method " +methodName+ " has the same name as another member in the scope or in the parent (not using override)");
+            else{
+                if(qualifier.contains("private"))
+                    classe.getPrivateMethod().put(method.getName(),method);
+                else
+                    classe.getPublicMethod().put(method.getName(),method);
+            }
+        } 
+        
         if (lexer.token != Token.LEFTCURBRACKET) {
             error("'{' expected");
         }
         next();
-        method = new Method(t, parameters, methodName);
+       
         symbolTable.setCurrentMethod(method);
         
         statementList();
@@ -681,12 +686,10 @@ public class Compiler {
     	Type tipoFactor = Type.undefinedType;
     	if(!startExpr(lexer.token))
     		error("Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr");
-    	else if(lexer.token != Token.LITERALINT && lexer.token != Token.STRING && lexer.token != Token.TRUE && lexer.token != Token.FALSE)
-    		error("Basic value (int, string or boolean) expected!");
     	else if(lexer.token == Token.LITERALINT) {
     		tipoFactor = Type.intType;
     		next();
-    	} else if(lexer.token == Token.STRING) {
+    	} else if(lexer.token == Token.LITERALSTRING) {
     		tipoFactor = Type.stringType;
     		next();
     	}

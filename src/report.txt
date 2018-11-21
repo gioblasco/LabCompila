@@ -1,18 +1,14 @@
 Relatorio do Compilador
 
 0 de um total de 5 erros que deveriam ser sinalizados nao o foram (0%)
-4 erros foram sinalizados na linha errada (80%)
+3 erros foram sinalizados na linha errada (60%)
 Todos os erros que deveriam ter sido sinalizados o foram
 ######################################################
 Erros que foram sinalizados na linha errada:
 
-ER-SEM70.ci
-    correto:    13, Method 'm' is being redefined (comp.Compiler.methodDec())
-    sinalizado: 25, ';' expected
-
 ER-SEM60.ci
     correto:    23, Method 'p' was not found in the public interface of 'A' or its superclasses (comp.Compiler.factor())
-    sinalizado: 15, Basic value (int, string or boolean) expected!
+    sinalizado: 16, ';' expected
 
 ER-SEM61.ci
     correto:    36, Method 's' was not found in class 'C' or its superclasses (comp.Compiler.factor())
@@ -20,7 +16,7 @@ ER-SEM61.ci
 
 ER-SEM62.ci
     correto:    16, Identifier 'a' was not found (comp.Compiler.factor())
-    sinalizado: 10, 'end' expected
+    sinalizado: 10, 'end' expected in class declaration
 
 ######################################################
 Em todos os testes abaixo, o compilador sinalizou o erro na linha correta (quando o teste tinha erros) ou nao sinalizou o erro (quando o teste NAO tinha erros). Mas eh necessario conferir se as mensagens emitidas pelo compilador sao compativeis com as mensagens de erro sugeridas pelas chamadas aos metaobjetos dos testes. 
@@ -28,7 +24,12 @@ Em todos os testes abaixo, o compilador sinalizou o erro na linha correta (quand
 A lista abaixo contem o nome do arquivo de teste, a mensagem que ele sinalizou e a mensagem sugerida pelo arquivo de teste
 
 ER-SEM68.ci
-The compiler message was: "Basic value (int, string or boolean) expected!"
+The compiler message was: "Class Program has no method or field named p"
 The 'cep' message is:      "Method 'p' was not found in class 'Program' or its superclasses"
+
+
+ER-SEM70.ci
+The compiler message was: "Method m has the same name as another member in the scope or in the parent (not using override)"
+The 'cep' message is:      "Method 'm' is being redefined"
 
 

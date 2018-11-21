@@ -42,13 +42,19 @@ public class Method {
 	// Returns "" if okay, else a multiline error message.
 	public String checkSignature(ArrayList<Type> parameters) {
 		String retorno = "";
-		int tam = parameters.size();
-		if(parameters == null && this.parameters != null || parameters != null && this.parameters == null || parameters.size() != this.parameters.size())
-			return  "Invalid number of parameters";
-		
-		for(int i = 0; i < tam; i++) {
-			if(parameters.get(i) != this.parameters.get(i).getType()) {
-				retorno.concat("\n\tExpected "+this.parameters.get(i).getType().getName() + " but received " + parameters.get(i).getName() + "at the "+ (i+1) +"º parameter");
+		int tam1 = 0, tam2 = 0;
+		if(parameters != null || this.parameters != null) {
+			if (parameters != null)
+				tam1 = parameters.size();
+			if (this.parameters != null)
+				tam2 = this.parameters.size();
+			if(tam1 != tam2)
+				return  "Invalid number of parameters";
+			
+			for(int i = 0; i < tam1; i++) {
+				if(parameters.get(i) != this.parameters.get(i).getType()) {
+					retorno.concat("\n\tExpected "+this.parameters.get(i).getType().getName() + " but received " + parameters.get(i).getName() + "at the "+ (i+1) +"º parameter");
+				}
 			}
 		}
 		return retorno;
