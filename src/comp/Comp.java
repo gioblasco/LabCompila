@@ -138,13 +138,15 @@ public class Comp {
 		/*
 		 * no annotation was used in the source codes
 		 */
-		for ( CompilationError error : program.getCompilationErrorList() ) {
-			String s = error.getLineWithError();
-			if ( s == null ) { s = ""; }
-			outError.println("Error at line " + error.getLineNumber() + ", "
-					+ error.getMessage() + "\n" + s );
+		if(program != null) {
+			for ( CompilationError error : program.getCompilationErrorList() ) {
+				String s = error.getLineWithError();
+				if ( s == null ) { s = ""; }
+				outError.println("Error at line " + error.getLineNumber() + ", "
+						+ error.getMessage() + "\n" + s );
+			}
+			outError.flush();
 		}
-		outError.flush();
 	}
 
 	/**

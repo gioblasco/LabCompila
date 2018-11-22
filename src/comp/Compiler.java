@@ -258,7 +258,7 @@ public class Compiler {
     // FieldDec ::= “var” Type IdList “;”
     private ArrayList<Field> fieldDec(String qualifier) {
         ArrayList<Field> field = new ArrayList<Field>();
-        Field tempField = null;
+        Field addField, tempField = null;
         CianetoClass classe = symbolTable.getCurrentClass();
         
         if(qualifier.contains("override") || qualifier.contains("public")) {
@@ -271,7 +271,8 @@ public class Compiler {
         ArrayList<String> idList = idList();
 
         for(String name: idList) {
-            field.add(new Field(type, name));
+        	addField = new Field(type, name);
+            field.add(addField);
             if(name.equals(classe.getName())) {
     			error("Field name is equal class name " + classe.getName());
     		}
@@ -279,7 +280,7 @@ public class Compiler {
         	if(tempField != null)
         		error("Field with the name " +name+ " has already been declared.");
         	else
-        		classe.getFieldList().put(name, tempField);
+        		classe.getFieldList().put(name, addField);
         }
   
         if (lexer.token != Token.SEMICOLON) {
@@ -523,9 +524,11 @@ public class Compiler {
         			error("Only allowed to assign a class with its subclasses");
         	} else if(tipoAssign1 == Type.stringType && (tipoAssign2 != Type.stringType || tipoAssign2 != Type.nullType)) {
         		error("Only allowed to assing a String with another String or nil value");
-        	} else if(tipoAssign1 == Type.undefinedType && tipoAssign2 == Type.undefinedType) {
+        	} else if(tipoAssign1 == Type.undefinedType || tipoAssign2 == Type.undefinedType) {
         		error("Trying to assign undefined types");
-        	}         
+        	}  else if((tipoAssign1 == Type.intType || tipoAssign1 == Type.booleanType) && tipoAssign1 != tipoAssign2) {
+        		error("Trying to assign incompatible types");
+        	}
         }
     }
 
@@ -724,7 +727,7 @@ public class Compiler {
 	“self” ”.” Id “.” Id | 	ReadExpr
 	 */
     // objectCreation foi adicionado aqui por questões de ambiguidade
-    private Type primaryExpr() { // TODO: VERIFICAR SE O ID PODE SER O NOME DE UMA CLASSE OU APENAS UMA VARIAVEL DO OBJETO
+    private Type primaryExpr() { 
     	CianetoClass classe = symbolTable.getCurrentClass();
     	CianetoClass parent = classe.getParent();
     	Method currentMethod = null;
@@ -741,12 +744,12 @@ public class Compiler {
                 error("An identifier: or identifier were expected after the super call");
             } else {
             	if(parent == null)
-            		error("Class " + classe.getName() + " doesn't extends another class");
+            		error("Class " + classe.getName() + " doesn't extend another class");
             	if (lexer.token == Token.IDCOLON) {
             		if(parent != null) {
             			currentMethod = parent.getMethod(lexer.getStringValue());
             			if(currentMethod == null)
-            				error("Superclass has no method named " + lexer.getStringValue());
+            				error("Superclass " +parent.getName()+" has no method named " + lexer.getStringValue());
             		}
             		next();
             		ArrayList<Type> retorno = exprList();
@@ -759,9 +762,9 @@ public class Compiler {
             		}
             	} else if(lexer.token == Token.ID) {
             		if(parent != null) {
-            			currentMethod = parent.getMethod(lexer.getStringValue());
+            			currentMethod = parent.getPublicMethod(lexer.getStringValue());
             			if(currentMethod == null)
-            				error("Superclass has no method named " + lexer.getStringValue());
+            				error("Superclass "+parent.getName()+" has no method named " + lexer.getStringValue());
             			else {
             				String result = currentMethod.checkSignature(null);
             				if (!result.equals(""))
@@ -791,7 +794,7 @@ public class Compiler {
                 			currentField = classe.getFieldList().get(lexer.getStringValue());
                 			
                 			if(currentMethod == null && currentField == null)
-                				error("Class has no method or field named " + lexer.getStringValue());
+                				error("Class " + classe.getName() + " has no method or field named " + lexer.getStringValue());
                 			else if(currentMethod != null) {
                 				String result = currentMethod.checkSignature(null);
                 				if (!result.equals(""))
@@ -801,6 +804,7 @@ public class Compiler {
                 			} else {
                 				tipoPrimary = currentField.getType();
                 			}
+                			next();
                 		}
                 	} else if (lexer.token == Token.IDCOLON) {
                 		Type t  =  symbolTable.getInLocal(identifier);
@@ -810,7 +814,7 @@ public class Compiler {
                 			classe = (CianetoClass) t;
                 			currentMethod = classe.getMethod(lexer.getStringValue());
                 			if(currentMethod == null)
-                				error("Class has no method named " + lexer.getStringValue());
+                				error("Class "+classe.getName()+" has no method named " + lexer.getStringValue());
                 		}
                 		next();
                 		ArrayList<Type> retorno = exprList();
@@ -823,7 +827,7 @@ public class Compiler {
                 		}
                 	} else if (lexer.token == Token.NEW) {
                 		if( (classe = (CianetoClass)symbolTable.getInGlobal(identifier)) == null )
-                			error("Trying to create a new instance of an undefined class");
+                			error("Trying to create a new instance of an undefined class " + identifier);
                 		else
                 			tipoPrimary = Type.nullType;
                 		next();
@@ -832,7 +836,7 @@ public class Compiler {
             } else {
             	Type t  =  symbolTable.getInLocal(identifier);
         		if(t == null || t == Type.undefinedType)
-        			error("Trying to use a object that does not exist");
+        			error("Trying to use a object that does not exist " + identifier);
         		else
         			tipoPrimary = t;
             }
@@ -882,7 +886,7 @@ public class Compiler {
         						if(currentField != null && (currentField.getType() instanceof CianetoClass)) {
         							classe = (CianetoClass) symbolTable.getInGlobal(currentField.getName());
         							if(classe == null)
-        								error("Trying to call a method from a field that is not a class");
+        								error("Trying to call a method from a field, which is not a class");
         							else {
         								currentMethod = classe.getMethod(memberName);
         								if(currentMethod == null)
