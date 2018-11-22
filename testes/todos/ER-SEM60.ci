@@ -3,14 +3,14 @@ Giovanna Blasco Martin
 giovanna.blasco@hotmail.com
 */
 
-@cep(17, "Chamada a método privado da superclasse", "Method 'p' was not found in the public interface of 'A' or its superclasses", "comp.Compiler.factor()" )
-  
+@cep(18, "Chamada a metodo privado da superclasse", "Method 'p' was not found in the public interface of 'A' or its superclasses", "comp.Compiler.factor()" )
+
 open
-class A  
+class A
 
     private func p {
     }
-  
+
     func m {
         self.p;
     }
@@ -19,8 +19,9 @@ end
 
 class B extends A
 
+    override
     func m {
-        super.p;   
+        super.p;
     }
 
 end
