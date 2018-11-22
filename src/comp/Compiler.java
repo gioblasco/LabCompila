@@ -522,8 +522,8 @@ public class Compiler {
         	} else if (tipoAssign1 instanceof CianetoClass && tipoAssign2 instanceof CianetoClass) {
         		if(!((CianetoClass)tipoAssign2).findParent(tipoAssign1.getName()))
         			error("Only allowed to assign a class with its subclasses");
-        	} else if(tipoAssign1 == Type.stringType && (tipoAssign2 != Type.stringType || tipoAssign2 != Type.nullType)) {
-        		error("Only allowed to assing a String with another String or nil value");
+        	} else if(tipoAssign1 == Type.stringType && (tipoAssign2 != Type.stringType && tipoAssign2 != Type.nullType)) {
+        		error("Only allowed to assign a String with another String or nil value");
         	} else if(tipoAssign1 == Type.undefinedType || tipoAssign2 == Type.undefinedType) {
         		error("Trying to assign undefined types");
         	}  else if((tipoAssign1 == Type.intType || tipoAssign1 == Type.booleanType) && tipoAssign1 != tipoAssign2) {
@@ -545,13 +545,10 @@ public class Compiler {
         	if(tipoExpr1 != Type.intType || tipoExpr2 != Type.intType) {
         		error("< > <= >= only applies to Int values");
         		erro = true;
+        	} else {
+        		tipoExpr1 = Type.booleanType;
         	}
-        } else if(lexer.token == Token.EQ || lexer.token == Token.NOT) {
-        	if(lexer.token == Token.NOT) {
-        		next();
-        		if (lexer.token != Token.ASSIGN)
-                    error("Expecting '=' in relation");
-        	}
+        } else if(lexer.token == Token.EQ || lexer.token == Token.NEQ) {
         	next();
         	tipoExpr2 = simpleExpr();
         	if(tipoExpr1 instanceof CianetoClass && (!(tipoExpr2 instanceof CianetoClass) || tipoExpr2 != Type.nullType)) {
@@ -571,6 +568,8 @@ public class Compiler {
         	} else if (tipoExpr1 != tipoExpr2) {
         		error("Trying to compare incompatible types");
         		erro = true;
+        	} else {
+        		tipoExpr1 = Type.booleanType;
         	}
         }
 
@@ -707,6 +706,9 @@ public class Compiler {
     		tipoFactor = expr();
     		if(lexer.token != Token.RIGHTPAR)
     			error("')' expected!");
+    		else {
+    			next();
+    		}
     	} else if (lexer.token == Token.NOT) { // isso aqui nao parece certo, pode gerar "! id ! id ! id ! id"
     		next();
     		tipoFactor = factor();
@@ -898,13 +900,13 @@ public class Compiler {
                 	            			else
                 	            				tipoPrimary = currentMethod.getType();
         								}
-        							}	
+        							}
         						} else {
         							error("Trying to call a method from a property that is not a class");
         						}
         					} else if(lexer.token == Token.ID) {
         						if(currentField != null && (currentField.getType() instanceof CianetoClass)) {
-        							classe = (CianetoClass) symbolTable.getInGlobal(currentField.getName());
+        							classe = (CianetoClass) symbolTable.getInGlobal(currentField.getType().getName());
         							if(classe == null)
         								error("Trying to call a method from a field that is not a class");
         							else {
@@ -922,6 +924,7 @@ public class Compiler {
         						} else {
         							error("Trying to call a method from a property that is not a class");
         						}
+        						next();
         					}
         				}
         			} else {
@@ -980,6 +983,7 @@ public class Compiler {
         next();
         statementList();         
         check(Token.RIGHTCURBRACKET, "'}' was expected");
+        next();
         if (lexer.token == Token.ELSE) {
             next();
             check(Token.LEFTCURBRACKET, "'{' expected after 'else'");
@@ -1023,7 +1027,7 @@ public class Compiler {
             error("'print:' or 'println:' was expected after 'Out.'");
     	next();
     	Type tipo = expr();
-    	if(tipo != Type.stringType || tipo != Type.intType)
+    	if(tipo != Type.stringType && tipo != Type.intType)
     		error("Print or println parameter must be string or int");
     }
 
