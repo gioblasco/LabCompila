@@ -44,7 +44,10 @@ public class Compiler {
                     metaobjectAnnotation(metaobjectCallList);
                 }
                 classDec();
-            } catch (CompilerError e) {
+            } catch (CompilerError e) { 
+            	// TODO: se ocorre um erro, percorre o arquivo até encontrar outra classe
+            	// porém isso é estranho, exemplo: se a segunda classe utilizar um método da anterior
+            	// que foi declarado depois do erro, não vai encontrar o método (=()
                 // if there was an exception, there is a compilation error
                 thereWasAnError = true;
                 while (lexer.token != Token.CLASS && lexer.token != Token.EOF) {
@@ -60,6 +63,9 @@ public class Compiler {
                 thereWasAnError = true;
             }
 
+        }
+        if(symbolTable.getInGlobal("Program") == null) {
+        	error("File must have a class called Program");
         }
         if (!thereWasAnError && lexer.token != Token.EOF) {
             try {
@@ -90,7 +96,6 @@ public class Compiler {
         int lineNumber = lexer.getLineNumber();
         next();
         ArrayList<Object> metaobjectParamList = new ArrayList<>();
-        // TODO: Every program must have a class named Program with a parameterless method called run.
         boolean getNextToken = false;
         if (lexer.token == Token.LEFTPAR) {
             // metaobject call with parameters
@@ -175,12 +180,16 @@ public class Compiler {
                 error("Identifier expected in extension of class declaration");
             } else {
             	String superclassName = lexer.getStringValue();
-            	if((parent = symbolTable.getInGlobal(superclassName)) == null)
-            		error("Trying to extend an unexistant class");
-            	// checa se o parent não eh final
-            	else {
-            		if(!((CianetoClass)parent).isOpen())
-            			error("Trying to extend a final class");            			            			
+            	if(className.equals(superclassName)) {
+            		error("Class " +className+ " trying to extend itself");
+            	} else {
+	            	if((parent = symbolTable.getInGlobal(superclassName)) == null)
+	            		error("Trying to extend an unexistant class");
+	            	// checa se o parent não eh final
+	            	else {
+	            		if(!((CianetoClass)parent).isOpen())
+	            			error("Trying to extend a final class");            			            			
+	            	}
             	}
             }
             next();
@@ -194,6 +203,12 @@ public class Compiler {
     	symbolTable.setCurrentClass(classe);
 
         memberList();
+        
+        if(classe.getName().equals("Program")) {
+        	if(classe.getPublicMethod("run") == null) {
+        		error("Class 'Program' must have a public method called 'run'");
+        	}
+        }
         if (lexer.token != Token.END) {
             error("'end' expected in class declaration");
         }
@@ -358,6 +373,10 @@ public class Compiler {
             methodName = lexer.getStringValue();
             next();
             parameters = formalParamDec();
+            if(symbolTable.getCurrentClass().getName().equals("Program") && methodName.equals("run")) {
+            	if(parameters != null)
+            		error("'run' method in 'Program' class can't have parameters");
+        	}	
             for (Field f: parameters){
                 if( symbolTable.getInLocal(f.getName()) == null ) {
                     symbolTable.putInLocal(f.getName(), f.getType());
@@ -390,7 +409,7 @@ public class Compiler {
                 	tempField = classe.getFieldList().get(method.getName());
                 if(tempMethod != null|| tempField != null)
                 	error("Method " +methodName+ " has the same name as another member in the scope.");
-                else {
+                else { // TODO: checar se assinatura é identica (tipo e parametros)
                     tempMethod = (classe.getParent() != null ) ? classe.getParent().getPublicMethod(method.getName()) : null;
                     if(tempMethod == null) {
                         error("Trying to override a non existent method " + methodName);
@@ -472,13 +491,17 @@ public class Compiler {
                 checkSemiColon = false;
                 break;
             case WHILE:
+            	symbolTable.setWhileStat(true);
                 whileStat();
+                symbolTable.setWhileStat(false);
                 checkSemiColon = false;
                 break;
             case RETURN:
                 returnStat();
                 break;
             case BREAK:
+            	if(symbolTable.getWhileStat() == false)
+            		error("'break' statament outside a 'while' statement");
                 breakStat();
                 break;
             case SEMICOLON:
@@ -513,6 +536,8 @@ public class Compiler {
     private void assignExpr() {
     	Type tipoAssign1 = Type.undefinedType, tipoAssign2 = Type.undefinedType;
 
+    	if(lexer.token == Token.LITERALINT || lexer.token == Token.LITERALSTRING || lexer.token == Token.TRUE || lexer.token == Token.FALSE)
+    		error("Not a variable at left size of assignment");
         tipoAssign1 = expr();
         if (lexer.token == Token.ASSIGN) {
             next();
@@ -791,22 +816,26 @@ public class Compiler {
                 		if(t == null || t == Type.undefinedType)
                 			error("Trying to use a object that does not exist");
                 		else {
-                			classe = (CianetoClass) t;
-                			currentMethod = classe.getMethod(lexer.getStringValue());
-                			currentField = classe.getFieldList().get(lexer.getStringValue());
-                			
-                			if(currentMethod == null && currentField == null)
-                				error("Class " + classe.getName() + " has no method or field named " + lexer.getStringValue());
-                			else if(currentMethod != null) {
-                				String result = currentMethod.checkSignature(null);
-                				if (!result.equals(""))
-                					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
-                				else
-                					tipoPrimary = currentMethod.getType();
-                			} else {
-                				tipoPrimary = currentField.getType();
+                			if(!(t instanceof CianetoClass))
+                				error("Trying to access a method of a non-object");
+                			else {
+	                			classe = (CianetoClass) t;
+	                			currentMethod = classe.getMethod(lexer.getStringValue());
+	                			currentField = classe.getFieldList().get(lexer.getStringValue());
+	                			
+	                			if(currentMethod == null && currentField == null)
+	                				error("Class " + classe.getName() + " has no method or field named " + lexer.getStringValue());
+	                			else if(currentMethod != null) {
+	                				String result = currentMethod.checkSignature(null);
+	                				if (!result.equals(""))
+	                					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
+	                				else
+	                					tipoPrimary = currentMethod.getType();
+	                			} else {
+	                				tipoPrimary = currentField.getType();
+	                			}
                 			}
-                			next();
+	                		next();
                 		}
                 	} else if (lexer.token == Token.IDCOLON) {
                 		Type t  =  symbolTable.getInLocal(identifier);

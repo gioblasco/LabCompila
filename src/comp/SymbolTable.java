@@ -17,6 +17,7 @@ public class SymbolTable {
     public SymbolTable() {
         localTable = new Hashtable<String, Type>();
         globalTable = new Hashtable<String, Type>();
+        this.whileStat = false;
     }
 
     public void putInGlobal(String key, Type value) {
@@ -50,6 +51,14 @@ public class SymbolTable {
     public void setCurrentMethod(Method metodo) {
     	this.currentMethod = metodo;
     }
+    
+    public boolean getWhileStat() {
+    	return whileStat;
+    }
+    
+    public void setWhileStat(boolean whilestat) {
+    	this.whileStat = whilestat;
+    }
 
     public void removeLocalIdent() {
         // remove all local identifiers from the table
@@ -60,4 +69,5 @@ public class SymbolTable {
     private Hashtable<String, Type> globalTable;
     private CianetoClass currentClass;
     private Method currentMethod;
+    private boolean whileStat;
 }
