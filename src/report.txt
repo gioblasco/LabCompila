@@ -1,36 +1,22 @@
 Relatorio do Compilador
 
-1 de um total de 5 erros que deveriam ser sinalizados nao o foram (20%)
-1 erros foram sinalizados na linha errada (20%)
+1 de um total de 2 erros que deveriam ser sinalizados nao o foram (50%)
+0 erros foram sinalizados na linha errada (0%)
+0 erros foram sinalizados em 3 arquivos sem erro (0%)
 
 Erros que deveriam ser sinalizados mas nao foram:
 
-ER-SEM30.ci, 22, Method put of subclass B has a signature different from method inherited from superclass A (comp.Compiler.methodDec())
+ER-SEM34.ci, 23, Message send 'a.m()' returns a value that is not used (comp.Compiler.statement())
 
-######################################################
-Erros que foram sinalizados na linha errada:
-
-ER-SEM29.ci
-    correto:    20, Method 'put' of the subclass 'B' has a signature different from the same method of superclass 'A' (comp.Compiler.methodDec() or comp.Compiler.classDec())
-    sinalizado: 11, 'end' expected in class declaration
-
+Um ou mais arquivos de teste tinham erros, mas estes foram sinalizados nos numeros de linhas corretos
+O compilador nao sinalizou nenhum erro que nao deveria ter sinalizado
 ######################################################
 Em todos os testes abaixo, o compilador sinalizou o erro na linha correta (quando o teste tinha erros) ou nao sinalizou o erro (quando o teste NAO tinha erros). Mas eh necessario conferir se as mensagens emitidas pelo compilador sao compativeis com as mensagens de erro sugeridas pelas chamadas aos metaobjetos dos testes. 
 
 A lista abaixo contem o nome do arquivo de teste, a mensagem que ele sinalizou e a mensagem sugerida pelo arquivo de teste
 
-ER-SEM33.ci
-The compiler message was: "Method m has the same name as another member in the scope or in the parent (not using override)"
-The 'cep' message is:      "Method 'm' is being redeclared"
-
-
-ER-SEM31.ci
-The compiler message was: "Method i has the same name as another member in the scope or in the parent (not using override)"
-The 'cep' message is:      "Method 'i' has name equal to an instance variable"
-
-
-ER-SEM32.ci
-The compiler message was: "Method m has the same name as another member in the scope or in the parent (not using override)"
-The 'cep' message is:      "Method 'm' is being redeclared"
+ER-SEM35.ci
+The compiler message was: "Illegal return statement. Method m shouldn't return anything"
+The 'cep' message is:      "Illegal 'return' statement. Method returns 'void'"
 
 

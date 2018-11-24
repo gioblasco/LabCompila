@@ -3,9 +3,7 @@
     hicaarol@gmail.com
 */
 
-@cep(16, "Metodo put da classe B possui valor de retorno. Na superclasse A, nao",
-"Method put of subclass B has a signature different from method inherited from superclass A",
-"comp.Compiler.methodDec()")
+@cep(15, "Metodo put da classe B possui valor de retorno. Na superclasse A, nao", "Method put of subclass B has a signature different from method inherited from superclass A", "comp.Compiler.methodDec()")
 
 
 open

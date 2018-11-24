@@ -307,7 +307,7 @@ public class Compiler {
 
     // Type ::= BasicType | Id
     private Type type() {
-    	Type type = null;
+    	Type type = Type.undefinedType;
         if (lexer.token == Token.INT || lexer.token == Token.BOOLEAN || lexer.token == Token.STRING) {
             switch(lexer.token) {
                 case INT: 
@@ -326,7 +326,7 @@ public class Compiler {
             next();
         } else if(lexer.token == Token.ID) {
             if( (type = symbolTable.getInGlobal(lexer.getStringValue())) == null)
-                error("Class not Found!");
+                error("Class " +lexer.getLiteralStringValue() +" not Found!");
             next();
         } else {
             error("A type was expected");
@@ -360,7 +360,8 @@ public class Compiler {
         Method method = null, tempMethod = null;
         Field tempField = null;
         String methodName = new String("");
-        ArrayList<Field> parameters = null;
+        ArrayList<Field> parameters = null, superparameters = null;
+        ArrayList<Type> supertypes = null;
         CianetoClass classe = symbolTable.getCurrentClass();
         Type t = Type.undefinedType;
         next();
@@ -395,6 +396,11 @@ public class Compiler {
         
         method = new Method(t, parameters, methodName);
         
+        // TODO: problema no ER-SEM29: 
+        // "'Metodo 'put' redefinido na classe 'B' com parametros diferentes daqueles da superclasse 'A'
+        // porém na classe B, o nome é 'put:' porque ele recebe parametros e na classe A é só put,
+        // porque não recebe parâmetros. então seria melhor salvar os nomes das classes sem o ":"
+        
         if(methodName.equals(classe.getName()))
         	error("Method name is equal to the class name");
         if(qualifier.contains("override")) {
@@ -409,12 +415,22 @@ public class Compiler {
                 	tempField = classe.getFieldList().get(method.getName());
                 if(tempMethod != null|| tempField != null)
                 	error("Method " +methodName+ " has the same name as another member in the scope.");
-                else { // TODO: checar se assinatura é identica (tipo e parametros)
+                else {
                     tempMethod = (classe.getParent() != null ) ? classe.getParent().getPublicMethod(method.getName()) : null;
                     if(tempMethod == null) {
                         error("Trying to override a non existent method " + methodName);
                     } else {
-                        classe.getPublicMethod().put(method.getName(), method);
+                    	if(tempMethod.getType() != method.getType())
+                    		error("Trying to override method "+tempMethod.getName()+" of superclass with different type");
+                    	else {
+	                    	superparameters = tempMethod.getParameters();
+	                    	for(Field f : superparameters)
+	                    		supertypes.add(f.getType());
+	                    	if(!method.checkSignature(supertypes).equals(""))
+	                    		error("Trying to override method " +tempMethod.getName() + " of superclass with different signature");
+	                    	else
+	                    		classe.getPublicMethod().put(method.getName(), method);
+                    	}
                     }
                 }
             }
@@ -1042,7 +1058,9 @@ public class Compiler {
         next();
         Type tipo = expr();
         if(currentMethod != null)
-        	if(currentMethod.getType() != tipo)
+        	if(currentMethod.getType() == Type.undefinedType)
+        		error("Illegal return statement. Method "+currentMethod.getName()+ " shouldn't return anything");
+        	else if(currentMethod.getType() != tipo)
         		error("Type of return expression isn't the same of the method declaration");
     
     }
