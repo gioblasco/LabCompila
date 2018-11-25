@@ -14,6 +14,7 @@ import lexer.Token;
 
 public class Compiler {
 
+	public boolean canBeLeft;
     // compile must receive an input with an character less than
     // p_input.lenght
     public Program compile(char[] input, PrintWriter outError) {
@@ -371,7 +372,7 @@ public class Compiler {
 
         } else if (lexer.token == Token.IDCOLON) {
             // keyword method. It has parameters
-            methodName = lexer.getStringValue();
+            methodName = lexer.getStringValue().replace(":", "");
             next();
             parameters = formalParamDec();
             if(symbolTable.getCurrentClass().getName().equals("Program") && methodName.equals("run")) {
@@ -396,56 +397,49 @@ public class Compiler {
         
         method = new Method(t, parameters, methodName);
         
-        // TODO: problema no ER-SEM29: 
-        // "'Metodo 'put' redefinido na classe 'B' com parametros diferentes daqueles da superclasse 'A'
-        // porém na classe B, o nome é 'put:' porque ele recebe parametros e na classe A é só put,
-        // porque não recebe parâmetros. então seria melhor salvar os nomes das classes sem o ":"
-        
         if(methodName.equals(classe.getName()))
         	error("Method name is equal to the class name");
-        if(qualifier.contains("override")) {
-        	if(qualifier.contains("private")) {
-        		error("Cannot override a private method!");
-            } else { // public with override
-                // verificar se ja nao existe na classe atual
-                tempMethod = classe.getPrivateMethod().get(method.getName());
-                if(tempMethod == null)
-                    tempMethod = classe.getPublicMethod().get(method.getName());
-                if(tempMethod == null)
-                	tempField = classe.getFieldList().get(method.getName());
-                if(tempMethod != null|| tempField != null)
-                	error("Method " +methodName+ " has the same name as another member in the scope.");
-                else {
-                    tempMethod = (classe.getParent() != null ) ? classe.getParent().getPublicMethod(method.getName()) : null;
-                    if(tempMethod == null) {
-                        error("Trying to override a non existent method " + methodName);
-                    } else {
-                    	if(tempMethod.getType() != method.getType())
-                    		error("Trying to override method "+tempMethod.getName()+" of superclass with different type");
-                    	else {
+        
+        tempMethod = classe.getPrivateMethod().get(method.getName());
+		if(tempMethod == null)
+			tempMethod = classe.getPublicMethod().get(method.getName());
+		tempField = classe.getFieldList().get(method.getName());
+		if(tempMethod != null|| tempField != null)
+        	error("Method " +method.getName()+ " has the same name as another member in the scope.");
+		else {
+	        if(qualifier.contains("private")) {
+	        	if(qualifier.contains("override"))
+	        		error("Cannot override a private method!");
+	        	else
+	        		classe.getPrivateMethod().put(method.getName(), method);
+	        } else {
+        		tempMethod = (classe.getParent() != null ) ? classe.getParent().getPublicMethod(method.getName()) : null;
+        		if(qualifier.contains("override") && tempMethod == null) { // se tem override e n tem o metodo no pai
+        			error("Trying to override a non existent method " + method.getName());
+                } else if(tempMethod != null){ // se tem o metodo no pai
+                	if(!qualifier.contains("override"))
+                		error("Trying to redefine a method " +method.getName()+ " without 'override' keyword");
+                	else {
+	                	if(tempMethod.getType() != method.getType())
+	                		error("Trying to override method "+method.getName()+" of superclass with different type");
+	                	else {
 	                    	superparameters = tempMethod.getParameters();
-	                    	for(Field f : superparameters)
-	                    		supertypes.add(f.getType());
+	                    	if(superparameters != null) {
+		                    	for(Field f : superparameters)
+		                    		supertypes.add(f.getType());
+	                    	}
 	                    	if(!method.checkSignature(supertypes).equals(""))
-	                    		error("Trying to override method " +tempMethod.getName() + " of superclass with different signature");
+	                    		error("Trying to override method " +method.getName() + " of superclass with different signature");
 	                    	else
 	                    		classe.getPublicMethod().put(method.getName(), method);
-                    	}
-                    }
+	                	}
+                	}
+                } else {
+                	classe.getPublicMethod().put(method.getName(), method);
                 }
-            }
-        } else { // Sem @override
-            tempMethod = classe.getMethod(method.getName());
-            tempField = classe.getFieldList().get(method.getName());
-            if(tempMethod != null || tempField != null)
-                error("Method " +methodName+ " has the same name as another member in the scope or in the parent (not using override)");
-            else{
-                if(qualifier.contains("private"))
-                    classe.getPrivateMethod().put(method.getName(),method);
-                else
-                    classe.getPublicMethod().put(method.getName(),method);
-            }
-        } 
+	        }
+		}
+ 
         
         if (lexer.token != Token.LEFTCURBRACKET) {
             error("'{' expected");
@@ -552,11 +546,14 @@ public class Compiler {
     private void assignExpr() {
     	Type tipoAssign1 = Type.undefinedType, tipoAssign2 = Type.undefinedType;
 
-    	if(lexer.token == Token.LITERALINT || lexer.token == Token.LITERALSTRING || lexer.token == Token.TRUE || lexer.token == Token.FALSE)
-    		error("Not a variable at left size of assignment");
+    	this.canBeLeft = true;
         tipoAssign1 = expr();
         if (lexer.token == Token.ASSIGN) {
             next();
+            if(!this.canBeLeft) { // como tem atribuiçao, checa se expressão é variavel, para receber uma atribuição
+            	error("Invalid expression at left size of assignment.");
+            	this.canBeLeft = true;
+            }
             tipoAssign2 = expr(); // verifica se Expr1 tem mesmo tipo ou é conversível para Expr2
             if(tipoAssign1 instanceof CianetoClass && (!(tipoAssign2 instanceof CianetoClass) && tipoAssign2 != Type.nullType)) {
         		error("Only allowed to assign a class with another instance of the same class or nil value");
@@ -589,6 +586,7 @@ public class Compiler {
         	} else {
         		tipoExpr1 = Type.booleanType;
         	}
+        	this.canBeLeft = false;
         } else if(lexer.token == Token.EQ || lexer.token == Token.NEQ) {
         	next();
         	tipoExpr2 = simpleExpr();
@@ -612,6 +610,7 @@ public class Compiler {
         	} else {
         		tipoExpr1 = Type.booleanType;
         	}
+        	this.canBeLeft = false;
         }
 
         if(erro)
@@ -627,6 +626,7 @@ public class Compiler {
     	
         tipoSimple1 = sumSubExpr(); 
         while (lexer.token == Token.CONCAT) {
+        	this.canBeLeft = false;
             next();
             tipoSimple2 = sumSubExpr(); // verifica se sumSubExpr é Int ou String
             if(tipoSimple1 != Type.intType && tipoSimple1 != Type.stringType || tipoSimple2 != Type.intType && tipoSimple2 != Type.stringType) {
@@ -657,6 +657,7 @@ public class Compiler {
         		oroperator = true;
             next();
             tipoSumSub2 = term();
+            this.canBeLeft = false;
             if(!oroperator) {
             	if(tipoSumSub1 != Type.intType || tipoSumSub2 != Type.intType) { // verifica se Term1 e Term2 são Int (quando PLUS ou MINUS)
             		error("+ and - only apply to Int values");
@@ -692,6 +693,7 @@ public class Compiler {
         		andoperator = true;
             next();
             tipoTerm2 = signalFactor();
+            this.canBeLeft = false;
             if(!andoperator) {
             	if(tipoTerm1 != Type.intType || tipoTerm2 != Type.intType) { // verifica se Term1 e Term2 são Int (quando MULT ou DIV)
             		error("* and / only apply to Int values");
@@ -733,13 +735,16 @@ public class Compiler {
     	if(!startExpr(lexer.token))
     		error("Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr");
     	else if(lexer.token == Token.LITERALINT) {
+    		this.canBeLeft = false;
     		tipoFactor = Type.intType;
     		next();
     	} else if(lexer.token == Token.LITERALSTRING) {
+    		this.canBeLeft = false;
     		tipoFactor = Type.stringType;
     		next();
     	}
     	else if(lexer.token == Token.TRUE || lexer.token == Token.FALSE) {
+    		this.canBeLeft = false;
     		tipoFactor = Type.booleanType;
     		next();
     	} else if(lexer.token == Token.LEFTPAR) {
@@ -751,6 +756,7 @@ public class Compiler {
     			next();
     		}
     	} else if (lexer.token == Token.NOT) { // isso aqui nao parece certo, pode gerar "! id ! id ! id ! id"
+    		this.canBeLeft = false;
     		next();
     		tipoFactor = factor();
     	} else if (lexer.token == Token.ID){
@@ -777,6 +783,8 @@ public class Compiler {
     	Field currentField = null;
     	Type tipoPrimary = Type.undefinedType;
     	
+    	this.canBeLeft = false; // assumindo que nenhum pode, para setar true apenas para os que podem (poucos)
+    	
         if (lexer.token == Token.SUPER) {
             next();
             if (lexer.token != Token.DOT) {
@@ -790,7 +798,7 @@ public class Compiler {
             		error("Class " + classe.getName() + " doesn't extend another class");
             	if (lexer.token == Token.IDCOLON) {
             		if(parent != null) {
-            			currentMethod = parent.getMethod(lexer.getStringValue());
+            			currentMethod = parent.getMethod(lexer.getStringValue().replace(":",""));
             			if(currentMethod == null)
             				error("Superclass " +parent.getName()+" has no method named " + lexer.getStringValue());
             		}
@@ -859,7 +867,7 @@ public class Compiler {
                 			error("Trying to use a object that does not exist");
                 		else {
                 			classe = (CianetoClass) t;
-                			currentMethod = classe.getMethod(lexer.getStringValue());
+                			currentMethod = classe.getMethod(lexer.getStringValue().replace(":",""));
                 			if(currentMethod == null)
                 				error("Class "+classe.getName()+" has no method named " + lexer.getStringValue());
                 		}
@@ -884,8 +892,10 @@ public class Compiler {
             	Type t  =  symbolTable.getInLocal(identifier);
         		if(t == null || t == Type.undefinedType)
         			error("Trying to use a object that does not exist " + identifier);
-        		else
+        		else {
         			tipoPrimary = t;
+        			this.canBeLeft = true; // um id (var) pode receber atribuição com assign
+        		}
             }
         } else if (lexer.token == Token.SELF) {
         	next();
@@ -895,7 +905,7 @@ public class Compiler {
         			error("An identifier: or identifier were expected after the self call");
         		} else if(lexer.token == Token.IDCOLON) { // chama metodo de self
         			if(classe != null) {
-            			currentMethod = classe.getMethod(lexer.getStringValue());
+            			currentMethod = classe.getMethod(lexer.getStringValue().replace(":",""));
             			if(currentMethod == null)
             				error("Class " +classe.getName()+ " has no method named " + lexer.getStringValue());
             		}
@@ -926,7 +936,7 @@ public class Compiler {
         				if(lexer.token != Token.IDCOLON && lexer.token != Token.ID) {
         					error("An identifier: or identifier were expected after the self.Id call");
         				} else {
-        					String memberName = lexer.getStringValue();
+        					String memberName = lexer.getStringValue().replace(":","");
         					if (lexer.token == Token.IDCOLON) { 
         						next();
         						ArrayList<Type> retorno = exprList();
@@ -975,8 +985,10 @@ public class Compiler {
         			} else {
         				if(currentMethod != null)
         					tipoPrimary = currentMethod.getType();
-        				else if(currentField != null)
+        				else if(currentField != null) {
         					tipoPrimary = currentField.getType();
+        					this.canBeLeft = true; // um self.id (var) pode receber atribuição com assign
+        				}
         			}
         		}
         	} else {

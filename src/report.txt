@@ -1,13 +1,9 @@
 Relatorio do Compilador
 
-1 de um total de 2 erros que deveriam ser sinalizados nao o foram (50%)
+0 de um total de 21 erros que deveriam ser sinalizados nao o foram (0%)
 0 erros foram sinalizados na linha errada (0%)
-0 erros foram sinalizados em 3 arquivos sem erro (0%)
-
-Erros que deveriam ser sinalizados mas nao foram:
-
-ER-SEM34.ci, 23, Message send 'a.m()' returns a value that is not used (comp.Compiler.statement())
-
+0 erros foram sinalizados em 5 arquivos sem erro (0%)
+Todos os erros que deveriam ter sido sinalizados o foram
 Um ou mais arquivos de teste tinham erros, mas estes foram sinalizados nos numeros de linhas corretos
 O compilador nao sinalizou nenhum erro que nao deveria ter sinalizado
 ######################################################
@@ -15,8 +11,109 @@ Em todos os testes abaixo, o compilador sinalizou o erro na linha correta (quand
 
 A lista abaixo contem o nome do arquivo de teste, a mensagem que ele sinalizou e a mensagem sugerida pelo arquivo de teste
 
-ER-SEM35.ci
-The compiler message was: "Illegal return statement. Method m shouldn't return anything"
-The 'cep' message is:      "Illegal 'return' statement. Method returns 'void'"
+ER-SEM68.ci
+The compiler message was: "Class Program has no method or field named p"
+The 'cep' message is:      "Method 'p' was not found in class 'Program' or its superclasses"
 
 
+ER-SEM29.ci
+The compiler message was: "Trying to override method put of superclass with different signature"
+The 'cep' message is:      "Method 'put' of the subclass 'B' has a signature different from the same method of superclass 'A'"
+
+
+ER-SEM08.ci
+The compiler message was: "+ and - only apply to Int values"
+The 'cep' message is:      "type boolean does not support operation '+'"
+
+
+ER-SEM07.ci
+The compiler message was: "Trying to access a method of a non-object"
+The 'cep' message is:      "Message send to a non-object receiver"
+
+
+ER-SEM33.ci
+The compiler message was: "Method m has the same name as another member in the scope."
+The 'cep' message is:      "Method 'm' is being redeclared"
+
+
+ER-SEM11.ci
+The compiler message was: "While condition must be boolean"
+The 'cep' message is:      "non-boolean expression in 'while' command"
+
+
+ER-SEM24.ci
+The compiler message was: "Identifier expected"
+The 'cep' message is:      "Identifier expected"
+
+
+ER-SEM25.ci
+The compiler message was: "Identifier expected"
+The 'cep' message is:      "Identifier expected"
+
+
+ER-SEM31.ci
+The compiler message was: "Method i has the same name as another member in the scope."
+The 'cep' message is:      "Method 'i' has name equal to an instance variable"
+
+
+ER-SEM70.ci
+The compiler message was: "Method m has the same name as another member in the scope."
+The 'cep' message is:      "Method 'm' is being redefined"
+
+
+ER-LEX-EXTRA01.ci
+The compiler message was: "Trying to use a object that does not exist ver"
+The 'cep' message is:      ""
+
+
+ER-SEM60.ci
+The compiler message was: "Superclass A has no method named p"
+The 'cep' message is:      "Method 'p' was not found in the public interface of 'A' or its superclasses"
+
+
+ER-SEM26.ci
+The compiler message was: "'break' statament outside a 'while' statement"
+The 'cep' message is:      "'break' statement found outside a 'while' statement"
+
+
+ER-SEM61.ci
+The compiler message was: "Class C has no method or field named s"
+The 'cep' message is:      "Method 's' was not found in class 'C' or its superclasses"
+
+
+ER-SEM32.ci
+The compiler message was: "Method m has the same name as another member in the scope."
+The 'cep' message is:      "Method 'm' is being redeclared"
+
+
+ER-SEM06.ci
+The compiler message was: "Invalid expression at left size of assignment."
+The 'cep' message is:      "'operator expected' or 'variable expected at the left-hand side of a assignment'"
+
+
+ER-SEM30.ci
+The compiler message was: "Trying to override method put of superclass with different type"
+The 'cep' message is:      "Method put of subclass B has a signature different from method inherited from superclass A"
+
+
+ER-SEM62.ci
+The compiler message was: "Trying to use a object that does not exist a"
+The 'cep' message is:      "Identifier 'a' was not found"
+
+
+ER-SEM09.ci
+The compiler message was: "AND only apply to boolean values"
+The 'cep' message is:      "type 'int' does not support operator '&&'"
+
+
+ER-SEM28.ci
+The compiler message was: "Field with the name i has already been declared."
+The 'cep' message is:      "Variable 'i' is being redeclared"
+
+
+ER-SEM27.ci
+The compiler message was: "Class A trying to extend itself"
+The 'cep' message is:      "Class 'A' is inheriting from itself"
+
+
+Para os casos de teste que voce utilizou, o compilador esta correto
