@@ -15,7 +15,8 @@ import lexer.Token;
 public class Compiler {
 
 	// atributos globais auxiliares
-	public boolean canBeLeft;	
+	public boolean canBeLeft;
+	public boolean mustBeAssign;
 	
     // compile must receive an input with an character less than
     // p_input.lenght
@@ -222,7 +223,7 @@ public class Compiler {
     }
 
     // MemberList ::= { [ Qualifier ] Member }
-    private void memberList() { //checar se o nome do membro nao eh igual ao da classe
+    private void memberList() {
         CianetoClass classe = symbolTable.getCurrentClass();
         String qualifier;
     	while (true) {
@@ -278,13 +279,13 @@ public class Compiler {
     private ArrayList<Field> fieldDec(String qualifier) {
         ArrayList<Field> field = new ArrayList<Field>();
         Field addField, tempField = null;
+        Method tempMethod = null;
         CianetoClass classe = symbolTable.getCurrentClass();
         
         if(qualifier.contains("override") || qualifier.contains("public")) {
         	error("A field must be declared private");
         }
         
-        // já está sendo verificado se chamou o var, fique tranquilo...
     	next();
         Type type = type();
         ArrayList<String> idList = idList();
@@ -296,8 +297,11 @@ public class Compiler {
     			error("Field name is equal class name " + classe.getName());
     		}
             tempField = classe.getFieldList().get(name);
-        	if(tempField != null)
-        		error("Field with the name " +name+ " has already been declared.");
+            tempMethod = classe.getPrivateMethod().get(name);
+            if(tempMethod == null)
+            	tempMethod = classe.getPublicMethod().get(name);
+        	if(tempField != null || tempMethod != null)
+        		error("Field with the name " +name+ " has the same name as another member is class " + classe.getName());
         	else
         		classe.getFieldList().put(name, addField);
         }
@@ -402,7 +406,7 @@ public class Compiler {
         if(symbolTable.getCurrentClass().getName().equals("Program") && methodName.equals("run")) {
         	if(parameters != null)
         		error("'run' method in 'Program' class can't have parameters");
-        	if(t != null)
+        	if(t != Type.undefinedType)
         		error("'run' method in 'Program' class can't have a return");
         	if(qualifier.contains("private"))
         		error("'run' method in 'Program' class can't be private");
@@ -558,8 +562,6 @@ public class Compiler {
     // AssignExpr ::= Expression [ “=” Expression ]
     private void assignExpr() {
     	Type tipoAssign1 = Type.undefinedType, tipoAssign2 = Type.undefinedType;
-    	
-    	// TODO: ERR-SEM34 -> checar se uma variavel (retorno de metodo por exemplo) está sendo atribuida a alguma coisa
 
     	this.canBeLeft = true;
         tipoAssign1 = expr();
@@ -567,7 +569,6 @@ public class Compiler {
             next();
             if(!this.canBeLeft) { // como tem atribuiçao, checa se expressão é variavel, para receber uma atribuição
             	error("Invalid expression at left size of assignment.");
-            	this.canBeLeft = true;
             }
             tipoAssign2 = expr(); // verifica se Expr1 tem mesmo tipo ou é conversível para Expr2
             if(tipoAssign1 instanceof CianetoClass && (!(tipoAssign2 instanceof CianetoClass) && tipoAssign2 != Type.nullType)) {
@@ -581,6 +582,10 @@ public class Compiler {
         		error("Trying to assign undefined types");
         	}  else if((tipoAssign1 == Type.intType || tipoAssign1 == Type.booleanType) && tipoAssign1 != tipoAssign2) {
         		error("Trying to assign incompatible types");
+        	}
+        } else {
+        	if(tipoAssign1 != Type.undefinedType) { // se primeira expressão retorna alguma valor que nao é atribuido a nada
+        		error("Value must be assigned to some variable. It is not being used.");
         	}
         }
     }

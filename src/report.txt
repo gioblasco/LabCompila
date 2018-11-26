@@ -1,6 +1,6 @@
 Relatorio do Compilador
 
-0 de um total de 4 erros que deveriam ser sinalizados nao o foram (0%)
+0 de um total de 5 erros que deveriam ser sinalizados nao o foram (0%)
 0 erros foram sinalizados na linha errada (0%)
 0 erros foram sinalizados em 1 arquivos sem erro (0%)
 Todos os erros que deveriam ter sido sinalizados o foram
@@ -16,13 +16,18 @@ The compiler message was: "'run' method in 'Program' class can't have parameters
 The 'cep' message is:      "Method 'run' of class 'Program' cannot take parameters"
 
 
+ER-SEM34.ci
+The compiler message was: "Value must be assigned to some variable. It is not being used."
+The 'cep' message is:      "Message send 'a.m()' returns a value that is not used"
+
+
 ER-SEM80.ci
 The compiler message was: "'run' method in 'Program' class can't have a return"
 The 'cep' message is:      "Method 'run' of class 'Program' with a return value type different from 'void'"
 
 
 ER-SEM81.ci
-The compiler message was: "'run' method in 'Program' class can't have a return"
+The compiler message was: "'run' method in 'Program' class can't be private"
 The 'cep' message is:      "Method 'run' of class 'Program' cannot be private"
 
 
