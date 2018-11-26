@@ -1,11 +1,9 @@
-/* 
+/*
 Evelin Soares
 evelincontatos@gmail.com
 */
 
-@cep(19, "Método 'set' não pertence à classe 'A'", 
-  "Method 'set' was not found in class 'A' or its superclasses",
-  "comp.Compiler.factor()")
+@cep(19, "Método 'set' não pertence à classe 'A'", "Method 'set' was not found in class 'A' or its superclasses", "comp.Compiler.factor()")
 
 
 class A

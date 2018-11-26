@@ -3,7 +3,9 @@
     hicaarol@gmail.com
 */
 
-@cep(7, "Metodo que nao deve retornar nada possui instrucao 'return'", "Illegal 'return' statement. Method returns 'void'", "comp.Compiler.returnStatement()")
+@cep(7, "Metodo que nao deve retornar nada possui instrucao 'return'",
+"Illegal 'return' statement. Method returns 'void'",
+"comp.Compiler.returnStatement()")
 
 class A
 

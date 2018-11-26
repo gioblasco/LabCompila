@@ -1,0 +1,13 @@
+/*
+Gustavo Eda
+edapd12@gmail.com
+*/
+
+@cep(7, "Classe 'Program' sem metodo 'run'", "Method 'run' was not found in class 'Program'", "comp.Compiler.classDec()")
+
+class Program
+
+    func m {
+    }
+
+end

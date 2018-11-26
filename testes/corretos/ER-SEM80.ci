@@ -1,0 +1,14 @@
+/*
+Gustavo Eda
+edapd12@gmail.com
+*/
+
+@cep(5, "metodo run deve retornar 'void'", "Method 'run' of class 'Program' with a return value type different from 'void'",
+    "comp.Compiler.methodDec()" )
+
+class Program
+
+    func run -> Int {
+    }
+
+end

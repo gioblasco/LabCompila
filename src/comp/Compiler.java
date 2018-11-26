@@ -14,7 +14,9 @@ import lexer.Token;
 
 public class Compiler {
 
-	public boolean canBeLeft;
+	// atributos globais auxiliares
+	public boolean canBeLeft;	
+	
     // compile must receive an input with an character less than
     // p_input.lenght
     public Program compile(char[] input, PrintWriter outError) {
@@ -66,7 +68,7 @@ public class Compiler {
 
         }
         if(symbolTable.getInGlobal("Program") == null) {
-        	error("File must have a class called Program");
+        	error("File must have a class called Program"); // TODO: Entender como mostrar esse erro
         }
         if (!thereWasAnError && lexer.token != Token.EOF) {
             try {
@@ -210,6 +212,7 @@ public class Compiler {
         		error("Class 'Program' must have a public method called 'run'");
         	}
         }
+        
         if (lexer.token != Token.END) {
             error("'end' expected in class declaration");
         }
@@ -375,10 +378,8 @@ public class Compiler {
             methodName = lexer.getStringValue().replace(":", "");
             next();
             parameters = formalParamDec();
-            if(symbolTable.getCurrentClass().getName().equals("Program") && methodName.equals("run")) {
-            	if(parameters != null)
-            		error("'run' method in 'Program' class can't have parameters");
-        	}	
+            if(parameters == null)
+            	error("Method " +methodName+ ": is expecting parameters");
             for (Field f: parameters){
                 if( symbolTable.getInLocal(f.getName()) == null ) {
                     symbolTable.putInLocal(f.getName(), f.getType());
@@ -393,7 +394,19 @@ public class Compiler {
         if (lexer.token == Token.MINUS_GT) {
             next();
             t = type();
-        }
+            if(t == Type.nullType || t == Type.undefinedType) {
+            	error("Method must be declared returning a valid type");
+            }
+        }            
+        
+        if(symbolTable.getCurrentClass().getName().equals("Program") && methodName.equals("run")) {
+        	if(parameters != null)
+        		error("'run' method in 'Program' class can't have parameters");
+        	if(t != null)
+        		error("'run' method in 'Program' class can't have a return");
+        	if(qualifier.contains("private"))
+        		error("'run' method in 'Program' class can't be private");
+    	}	
         
         method = new Method(t, parameters, methodName);
         
@@ -545,6 +558,8 @@ public class Compiler {
     // AssignExpr ::= Expression [ “=” Expression ]
     private void assignExpr() {
     	Type tipoAssign1 = Type.undefinedType, tipoAssign2 = Type.undefinedType;
+    	
+    	// TODO: ERR-SEM34 -> checar se uma variavel (retorno de metodo por exemplo) está sendo atribuida a alguma coisa
 
     	this.canBeLeft = true;
         tipoAssign1 = expr();
@@ -626,9 +641,9 @@ public class Compiler {
     	
         tipoSimple1 = sumSubExpr(); 
         while (lexer.token == Token.CONCAT) {
-        	this.canBeLeft = false;
             next();
             tipoSimple2 = sumSubExpr(); // verifica se sumSubExpr é Int ou String
+            this.canBeLeft = false;
             if(tipoSimple1 != Type.intType && tipoSimple1 != Type.stringType || tipoSimple2 != Type.intType && tipoSimple2 != Type.stringType) {
             	error("Concatenation only applies to Int or String values");
             	erro = true;
@@ -756,9 +771,9 @@ public class Compiler {
     			next();
     		}
     	} else if (lexer.token == Token.NOT) { // isso aqui nao parece certo, pode gerar "! id ! id ! id ! id"
-    		this.canBeLeft = false;
     		next();
     		tipoFactor = factor();
+    		this.canBeLeft = false;
     	} else if (lexer.token == Token.ID){
     		tipoFactor = primaryExpr();
     	} else {
