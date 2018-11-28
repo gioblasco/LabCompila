@@ -1,5 +1,5 @@
 /*
-    Vinícius Furukawa Carvalho
+    Vinicius Furukawa Carvalho
     email: vinicius_furuka@hotmail.com.br
 */
 
@@ -15,11 +15,11 @@
 class Node
     var Int number;
     var Node next;
-    
+
     func print {
-        Out.print:number++" ";
-        if next != nil{
-            next.print;
+        Out.print:self.number++" ";
+        if self.next != nil {
+            self.next.print;
         }
     }
 end
@@ -28,63 +28,63 @@ class Head
     var Node end;
     var Node first;
     var Int nElements;
-    
+
     func init{
-        end = nil;
-        first = nil;
-        nElements = 0;
+        self.end = nil;
+        self.first = nil;
+        self.nElements = 0;
     }
-    
+
     func print {
-        if nElements != 0 {
-            first.print;
+        if self.nElements != 0 {
+            self.first.print;
         }
     }
-    
+
     func insert:Int num{
-        nElements = nElements + 1;
+        self.nElements = self.nElements + 1;
         var Node aux;
-        
+
         aux = Node.new;
-            
+
         aux.number = num;
         aux.next = nil;
-        
+
         if first == nil && end == nil{
-            first = aux;
+            self.first = aux;
         } else {
-            end.next = aux;
+            self.end.next = aux;
         }
-        
-        end = aux;
+
+        self.end = aux;
     }
-    
+
     func print:
 end
 
 class Program
-   
+
    func run {
       var Head head;
       var Int max;
       var Int aux;
-      
+
       count = 0;
       max = 10;
-      
+
       Out.println:"";
       Out.println:"Ok-queue";
       Out.println:"The output should be :";
       Out.println:"The values of queue";
       head = Head.new;
       head.init;
-      
+
       while head.nElements < max {
           aux = In.readInt;
           head.insert:aux;
       }
-      
+
       head.print;
-   }   
+   }
 
 end

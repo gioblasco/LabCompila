@@ -1,5 +1,5 @@
 /*
-Renan Rossignatti de França
+Renan Rossignatti de Franca
 renanrfranca@gmail.com
 */
 
@@ -27,9 +27,9 @@ class Program
         var A a, a2;
         var B b;
 
-        a = null;
-        b = null;
-        a2 = null;
+        a = nil;
+        b = nil;
+        a2 = nil;
         if ( a == b ) {
             Out.println: 0;
         }

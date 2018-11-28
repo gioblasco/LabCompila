@@ -1,5 +1,8 @@
 Relatorio do Compilador
 
-0 erros foram sinalizados em 15 arquivos sem erro (0%)
-O compilador nao sinalizou nenhum erro que nao deveria ter sinalizado
-Para os casos de teste que voce utilizou, o compilador esta correto
+1 erros foram sinalizados em 1 arquivos sem erro (100%)
+######################################################
+Erros que foram sinalizados mas nao deveriam ter sido:
+
+ok-queue.ci, 50, Invalid expression at left size of assignment.
+

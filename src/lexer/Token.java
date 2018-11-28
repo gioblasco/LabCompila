@@ -20,7 +20,6 @@ public enum Token {
     DIV("/"),
     DOT("."),
     ELSE("else"),
-    END("end"),
     EOF("~eof"),
     EQ("=="),
     EXTENDS("extends"),

@@ -1,5 +1,5 @@
 /*
-Renan Rossignatti de França
+Renan Rossignatti de Franca
 renanrfranca@gmail.com
 */
 
@@ -7,7 +7,7 @@ renanrfranca@gmail.com
 
 /*
 @filename   OK-SIN03.ci
-    
+
 @comment    Testa expressoes aritmeticas e logicas, menos unario, &&, || e
 todos os operadores de comparacao
 */
@@ -18,13 +18,11 @@ class Program
     func run {
         var Int i;
         var Boolean b;
-        
+
         i = (-7) + ((2) * (3 + 5));
         i = (-7) + 8;
-        b = ((((((!true) || (i <= 0)) || (i < 0)) || (i >= 0)) || (i > 0)) || (i == 7)) 
+        b = ((((((!true) || (i <= 0)) || (i < 0)) || (i >= 0)) || (i > 0)) || (i == 7))
             || (i != 3);
     }
 
 end
-
-

@@ -10,11 +10,11 @@
 
   @comment    Imprime a media da materia de lab compiladores
 
-    se NTrab >= 6 e NProv >= 6 então
+    se NTrab >= 6 e NProv >= 6 entao
       NFinal = (NTrab + NProv)/2
-    senão se NProv < 6 então
+    senao se NProv < 6 entao
             NFinal = menor entre NProv e NTrab
-      senão
+      senao
             NFinal = (2*NTrab + NProv)/3
 
 */
@@ -37,7 +37,7 @@ class A
 
     func calculaNotaB:Int ntrab, Int nprov -> Int{
         var Int ans;
-        ans = (2 * ntrab + prov)/3;
+        ans = (2 * ntrab + nprov)/3;
         return ans;
     }
 end
@@ -77,7 +77,7 @@ class Program
       if ans != 11{
           Out.println:ans;
       } else {
-          if ans == 11 && nprov < 6{
+          if (ans == 11) && (nprov < 6) {
               a = B.new;
               Out.println:a.calculaNotaB:ntrab,nprov;
           }else{

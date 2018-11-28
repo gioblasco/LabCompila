@@ -1,5 +1,5 @@
 /*
-Renan Rossignatti de França
+Renan Rossignatti de Franca
 renanrfranca@gmail.com
 */
 
@@ -8,7 +8,7 @@ renanrfranca@gmail.com
 
 /*
     @filename   OK-SIN02.ci
-        
+
     @comment    Testa se o  analisador sintatico manipula corretamente as regras
                 da gramatica, a maioria (ou todas) das quais esta representada
                 abaixo
@@ -20,15 +20,16 @@ class A
         var Int i;
         var Int j;
         var Boolean b;
-        
+
         b = false;
         if (b) {
         }
         else {
         }
-        while ( b )
+        while ( b ) {
             ;
-        
+        }
+
         while ( b ) {
         }
         i = ((1 * 4) + 3) - (5 / 2);
@@ -63,5 +64,5 @@ class Program
         a = A.new;
         a.m;
     }
-    
+
 end

@@ -214,7 +214,7 @@ public class Compiler {
         	}
         }
         
-        if (lexer.token != Token.END) {
+        if (!lexer.getStringValue().equals("end")) {
             error("'end' expected in class declaration");
         }
         
@@ -236,6 +236,8 @@ public class Compiler {
             } else if (lexer.token == Token.FUNC) {
                 methodDec(qualifier);
             } else {
+            	if(!qualifier.equals(""))
+                	error("Expected func or var");
                 break;
             }
         }
@@ -275,7 +277,7 @@ public class Compiler {
         return qualifier;
     }
 
-    // FieldDec ::= “var” Type IdList “;”
+    // FieldDec ::= “var” Type IdList [ “;” ]
     private ArrayList<Field> fieldDec(String qualifier) {
         ArrayList<Field> field = new ArrayList<Field>();
         Field addField, tempField = null;
@@ -306,10 +308,9 @@ public class Compiler {
         		classe.getFieldList().put(name, addField);
         }
   
-        if (lexer.token != Token.SEMICOLON) {
-            error("Semicolon Expected");
+        if (lexer.token == Token.SEMICOLON) {
+            next();
         }
-        next();
         return field;
     }
 
@@ -922,7 +923,7 @@ public class Compiler {
             } else {
             	Type t  =  symbolTable.getInLocal(identifier);
         		if(t == null || t == Type.undefinedType)
-        			error("Trying to use a object that does not exist " + identifier);
+        			error("Trying to use a object that does not exist " + identifier + ". Maybe using 'self' can help!");
         		else {
         			tipoPrimary = t;
         			this.canBeLeft = true; // um id (var) pode receber atribuição com assign
@@ -972,7 +973,7 @@ public class Compiler {
         						next();
         						ArrayList<Type> retorno = exprList();
         						if(currentField != null && (currentField.getType() instanceof CianetoClass)) {
-        							classe = (CianetoClass) symbolTable.getInGlobal(currentField.getName());
+        							classe = (CianetoClass) symbolTable.getInGlobal(currentField.getType().getName());
         							if(classe == null)
         								error("Trying to call a method from a field, which is not a class");
         							else {
@@ -1153,7 +1154,7 @@ public class Compiler {
         next();
     }
 
-    // LocalDec ::= “var” Type IdList [ “=” Expression ] “;”
+    // LocalDec ::= “var” Type IdList [ “=” Expression ]
     private void localDec() {
         next();
         Type t = type();
