@@ -563,26 +563,15 @@ public class Compiler {
     // AssignExpr ::= Expression [ “=” Expression ]
     private void assignExpr() {
     	Type tipoAssign1 = Type.undefinedType, tipoAssign2 = Type.undefinedType;
-    	Token expr;
 
     	this.canBeLeft = true;
-    	expr = lexer.token;
        	tipoAssign1 = expr();
-       	if(lexer.token == Token.NIL) {
-       		tipoAssign1 = Type.nullType;
-       		next();
-       	}
         if (lexer.token == Token.ASSIGN) {
             next();
             if(!this.canBeLeft) { // como tem atribuiçao, checa se expressão é variavel, para receber uma atribuição
             	error("Invalid expression at left size of assignment.");
             }
-            expr = lexer.token;
             tipoAssign2 = expr(); // verifica se Expr1 tem mesmo tipo ou é conversível para Expr2
-            if(expr == Token.NIL) {
-            	tipoAssign2 = Type.nullType;
-            	next();
-            }
             if(tipoAssign1 instanceof CianetoClass && (!(tipoAssign2 instanceof CianetoClass) && tipoAssign2 != Type.nullType)) {
         		error("Only allowed to assign a class with another instance of the same class or nil value");
         	} else if (tipoAssign1 instanceof CianetoClass && tipoAssign2 instanceof CianetoClass) {
@@ -605,15 +594,9 @@ public class Compiler {
     // Expression ::= SimpleExpression [ Relation SimpleExpression ]
     private Type expr() {
     	Type tipoExpr1 = Type.undefinedType, tipoExpr2 = Type.undefinedType;
-    	Token expr;
     	boolean erro = false;
     
-    	expr = lexer.token;
        	tipoExpr1 = simpleExpr();
-       	if(lexer.token == Token.NIL) {
-       		tipoExpr1 = Type.nullType;
-       		next();
-       	}
 
         // Relation ::= “==” | “<” | “>” | “<=” | “>=” | “! =”
         if(lexer.token == Token.LT || lexer.token == Token.GT || lexer.token == Token.LE || lexer.token == Token.GE) {
@@ -628,12 +611,7 @@ public class Compiler {
         	this.canBeLeft = false;
         } else if(lexer.token == Token.EQ || lexer.token == Token.NEQ) {
         	next();
-        	expr = lexer.token;
         	tipoExpr2 = simpleExpr();
-        	if(expr == Token.NIL) {
-            	tipoExpr2 = Type.nullType;
-            	next();
-            }
         	if(tipoExpr1 instanceof CianetoClass && (!(tipoExpr2 instanceof CianetoClass) && tipoExpr2 != Type.nullType)) {
         		error("Only allowed to compare a class with another instance of the same class or nil value");
         		erro = true;
@@ -800,6 +778,10 @@ public class Compiler {
     		next();
     		tipoFactor = factor();
     		this.canBeLeft = false;
+    	} else if(lexer.token == Token.NIL) {
+    		this.canBeLeft = false;
+    		tipoFactor = Type.nullType;
+    		next();
     	} else if (lexer.token == Token.ID){
     		tipoFactor = primaryExpr();
     	} else {
