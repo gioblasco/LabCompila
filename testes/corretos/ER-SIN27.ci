@@ -1,0 +1,19 @@
+/*
+Joao Vitor de Sa Medeiros Santos
+jvsms13@gmail.com
+joaovitor.santos@dcomp.sor.ufscar.br
+*/
+
+
+@cep(7, "Testa se =< e aceito como valido. Nao deve ser",
+      "Expression expected OR Unknown sequence of symbols",
+	  "comp.Compiler.ifStatement() OR lexer.Lexer.nextToken()")
+
+class Program
+
+    func run {
+       if 4 =< 3 {
+       }
+    }
+
+end

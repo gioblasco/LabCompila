@@ -1,39 +1,5 @@
 Relatorio do Compilador
 
-0 de um total de 5 erros que deveriam ser sinalizados nao o foram (0%)
-0 erros foram sinalizados na linha errada (0%)
-0 erros foram sinalizados em 1 arquivos sem erro (0%)
-Todos os erros que deveriam ter sido sinalizados o foram
-Um ou mais arquivos de teste tinham erros, mas estes foram sinalizados nos numeros de linhas corretos
+0 erros foram sinalizados em 5 arquivos sem erro (0%)
 O compilador nao sinalizou nenhum erro que nao deveria ter sinalizado
-######################################################
-Em todos os testes abaixo, o compilador sinalizou o erro na linha correta (quando o teste tinha erros) ou nao sinalizou o erro (quando o teste NAO tinha erros). Mas eh necessario conferir se as mensagens emitidas pelo compilador sao compativeis com as mensagens de erro sugeridas pelas chamadas aos metaobjetos dos testes. 
-
-A lista abaixo contem o nome do arquivo de teste, a mensagem que ele sinalizou e a mensagem sugerida pelo arquivo de teste
-
-ER-SEM79.ci
-The compiler message was: "'run' method in 'Program' class can't have parameters"
-The 'cep' message is:      "Method 'run' of class 'Program' cannot take parameters"
-
-
-ER-SEM34.ci
-The compiler message was: "Value must be assigned to some variable. It is not being used."
-The 'cep' message is:      "Message send 'a.m()' returns a value that is not used"
-
-
-ER-SEM80.ci
-The compiler message was: "'run' method in 'Program' class can't have a return"
-The 'cep' message is:      "Method 'run' of class 'Program' with a return value type different from 'void'"
-
-
-ER-SEM81.ci
-The compiler message was: "'run' method in 'Program' class can't be private"
-The 'cep' message is:      "Method 'run' of class 'Program' cannot be private"
-
-
-ER-SEM77.ci
-The compiler message was: "Class 'Program' must have a public method called 'run'"
-The 'cep' message is:      "Method 'run' was not found in class 'Program'"
-
-
 Para os casos de teste que voce utilizou, o compilador esta correto

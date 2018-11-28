@@ -60,7 +60,7 @@ public class CianetoClass extends Type {
 	}
 	
 	public Hashtable<String, Method> getPublicMethod() {
-		return this.publicMethodList;
+		return this.publicMethodList; 
 	}
 
 	public Hashtable<String, Method> getPrivateMethod() {

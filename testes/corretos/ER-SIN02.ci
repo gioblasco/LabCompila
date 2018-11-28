@@ -1,0 +1,12 @@
+@cep(7, "Falta identificador apos ','",
+  "Missing identifier", "comp.Compiler.localDec()")
+
+class Program
+
+    func run {
+
+        var Int i, j, ;
+
+    }
+
+end

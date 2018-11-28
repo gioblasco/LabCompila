@@ -334,7 +334,7 @@ public class Compiler {
             next();
         } else if(lexer.token == Token.ID) {
             if( (type = symbolTable.getInGlobal(lexer.getStringValue())) == null)
-                error("Class " +lexer.getLiteralStringValue() +" not Found!");
+                error("Class " +lexer.getStringValue() +" not Found!");
             next();
         } else {
             error("A type was expected");
@@ -368,8 +368,8 @@ public class Compiler {
         Method method = null, tempMethod = null;
         Field tempField = null;
         String methodName = new String("");
-        ArrayList<Field> parameters = null, superparameters = null;
-        ArrayList<Type> supertypes = null;
+        ArrayList<Field> parameters = new ArrayList<Field>(), superparameters = new ArrayList<Field>();
+        ArrayList<Type> supertypes = new ArrayList<Type>();
         CianetoClass classe = symbolTable.getCurrentClass();
         Type t = Type.undefinedType;
         next();
@@ -382,7 +382,7 @@ public class Compiler {
             methodName = lexer.getStringValue().replace(":", "");
             next();
             parameters = formalParamDec();
-            if(parameters == null)
+            if(parameters.size() == 0)
             	error("Method " +methodName+ ": is expecting parameters");
             for (Field f: parameters){
                 if( symbolTable.getInLocal(f.getName()) == null ) {
@@ -404,7 +404,7 @@ public class Compiler {
         }            
         
         if(symbolTable.getCurrentClass().getName().equals("Program") && methodName.equals("run")) {
-        	if(parameters != null)
+        	if(parameters.size() != 0)
         		error("'run' method in 'Program' class can't have parameters");
         	if(t != Type.undefinedType)
         		error("'run' method in 'Program' class can't have a return");
@@ -441,7 +441,7 @@ public class Compiler {
 	                		error("Trying to override method "+method.getName()+" of superclass with different type");
 	                	else {
 	                    	superparameters = tempMethod.getParameters();
-	                    	if(superparameters != null) {
+	                    	if(superparameters.size() != 0) {
 		                    	for(Field f : superparameters)
 		                    		supertypes.add(f.getType());
 	                    	}
@@ -549,10 +549,11 @@ public class Compiler {
                     writeStat();
                 } else if (lexer.token == Token.ID && lexer.getStringValue().equals("In")) {
                     readExpr();
-                } else {
+                } else { 
                     assignExpr();
                 }
         }
+        // TODO: ERR-SIN18 - só percebe falta de ; na linha abaixo, o que é natural
         if (checkSemiColon) {
             check(Token.SEMICOLON, "';' expected");
             next();
@@ -562,15 +563,26 @@ public class Compiler {
     // AssignExpr ::= Expression [ “=” Expression ]
     private void assignExpr() {
     	Type tipoAssign1 = Type.undefinedType, tipoAssign2 = Type.undefinedType;
+    	Token expr;
 
     	this.canBeLeft = true;
-        tipoAssign1 = expr();
+    	expr = lexer.token;
+       	tipoAssign1 = expr();
+       	if(lexer.token == Token.NIL) {
+       		tipoAssign1 = Type.nullType;
+       		next();
+       	}
         if (lexer.token == Token.ASSIGN) {
             next();
             if(!this.canBeLeft) { // como tem atribuiçao, checa se expressão é variavel, para receber uma atribuição
             	error("Invalid expression at left size of assignment.");
             }
+            expr = lexer.token;
             tipoAssign2 = expr(); // verifica se Expr1 tem mesmo tipo ou é conversível para Expr2
+            if(expr == Token.NIL) {
+            	tipoAssign2 = Type.nullType;
+            	next();
+            }
             if(tipoAssign1 instanceof CianetoClass && (!(tipoAssign2 instanceof CianetoClass) && tipoAssign2 != Type.nullType)) {
         		error("Only allowed to assign a class with another instance of the same class or nil value");
         	} else if (tipoAssign1 instanceof CianetoClass && tipoAssign2 instanceof CianetoClass) {
@@ -593,9 +605,16 @@ public class Compiler {
     // Expression ::= SimpleExpression [ Relation SimpleExpression ]
     private Type expr() {
     	Type tipoExpr1 = Type.undefinedType, tipoExpr2 = Type.undefinedType;
+    	Token expr;
     	boolean erro = false;
-    	
-        tipoExpr1 = simpleExpr();
+    
+    	expr = lexer.token;
+       	tipoExpr1 = simpleExpr();
+       	if(lexer.token == Token.NIL) {
+       		tipoExpr1 = Type.nullType;
+       		next();
+       	}
+
         // Relation ::= “==” | “<” | “>” | “<=” | “>=” | “! =”
         if(lexer.token == Token.LT || lexer.token == Token.GT || lexer.token == Token.LE || lexer.token == Token.GE) {
         	next();
@@ -609,27 +628,29 @@ public class Compiler {
         	this.canBeLeft = false;
         } else if(lexer.token == Token.EQ || lexer.token == Token.NEQ) {
         	next();
+        	expr = lexer.token;
         	tipoExpr2 = simpleExpr();
-        	if(tipoExpr1 instanceof CianetoClass && (!(tipoExpr2 instanceof CianetoClass) || tipoExpr2 != Type.nullType)) {
+        	if(expr == Token.NIL) {
+            	tipoExpr2 = Type.nullType;
+            	next();
+            }
+        	if(tipoExpr1 instanceof CianetoClass && (!(tipoExpr2 instanceof CianetoClass) && tipoExpr2 != Type.nullType)) {
         		error("Only allowed to compare a class with another instance of the same class or nil value");
         		erro = true;
         	} else if (tipoExpr1 instanceof CianetoClass && tipoExpr2 instanceof CianetoClass) {
-        		if(!((CianetoClass)tipoExpr2).findParent(tipoExpr1.getName())) {
+        		if(!((CianetoClass)tipoExpr2).findParent(tipoExpr1.getName()) && !((CianetoClass)tipoExpr1).findParent(tipoExpr2.getName())) {
         			error("Only allowed to compare a class with its subclasses");
         			erro = true;
         		}
-        	} else if(tipoExpr1 == Type.stringType && (tipoExpr2 != Type.stringType || tipoExpr2 != Type.nullType)) {
+        	} else if(tipoExpr1 == Type.stringType && (tipoExpr2 != Type.stringType && tipoExpr2 != Type.nullType)) {
         		error("Only allowed to compare a String with another String or nil value");
         		erro = true;
         	} else if(tipoExpr1 == Type.undefinedType && tipoExpr2 == Type.undefinedType) {
         		error("Trying to compare undefined types");
         		erro = true;
-        	} else if (tipoExpr1 != tipoExpr2) {
-        		error("Trying to compare incompatible types");
-        		erro = true;
-        	} else {
-        		tipoExpr1 = Type.booleanType;
         	}
+        	if(!erro)
+        		tipoExpr1 = Type.booleanType;
         	this.canBeLeft = false;
         }
 
@@ -805,7 +826,9 @@ public class Compiler {
     	
     	this.canBeLeft = false; // assumindo que nenhum pode, para setar true apenas para os que podem (poucos)
     	
-        if (lexer.token == Token.SUPER) {
+    	if(lexer.getStringValue().equals("In")) {
+    		tipoPrimary = readExpr();
+    	} else if (lexer.token == Token.SUPER) {
             next();
             if (lexer.token != Token.DOT) {
                 error("A '.' was expected after the 'super' keyword");
@@ -818,7 +841,7 @@ public class Compiler {
             		error("Class " + classe.getName() + " doesn't extend another class");
             	if (lexer.token == Token.IDCOLON) {
             		if(parent != null) {
-            			currentMethod = parent.getMethod(lexer.getStringValue().replace(":",""));
+            			currentMethod = parent.getPublicMethod(lexer.getStringValue().replace(":",""));
             			if(currentMethod == null)
             				error("Superclass " +parent.getName()+" has no method named " + lexer.getStringValue());
             		}
@@ -857,6 +880,7 @@ public class Compiler {
                 } else {
                 	if(lexer.token == Token.ID) {
                 		Type t  =  symbolTable.getInLocal(identifier);
+                		
                 		if(t == null || t == Type.undefinedType)
                 			error("Trying to use a object that does not exist");
                 		else {
@@ -882,16 +906,21 @@ public class Compiler {
 	                		next();
                 		}
                 	} else if (lexer.token == Token.IDCOLON) {
-                		Type t  =  symbolTable.getInLocal(identifier);
-                		if(t == null || t == Type.undefinedType)
-                			error("Trying to use a object that does not exist");
-                		else {
-                			classe = (CianetoClass) t;
-                			currentMethod = classe.getMethod(lexer.getStringValue().replace(":",""));
-                			if(currentMethod == null)
-                				error("Class "+classe.getName()+" has no method named " + lexer.getStringValue());
+                		if(lexer.getStringValue().equals("new:")) {
+                			error("Constructors can't receive parameters");
+                			next();
+                		} else {
+	                		Type t  =  symbolTable.getInLocal(identifier);
+	                		if(t == null || t == Type.undefinedType)
+	                			error("Trying to use a object that does not exist");
+	                		else {
+	                			classe = (CianetoClass) t;
+	                			currentMethod = classe.getMethod(lexer.getStringValue().replace(":",""));
+	                			if(currentMethod == null)
+	                				error("Class "+classe.getName()+" has no method named " + lexer.getStringValue());
+	                		}
+	                		next();
                 		}
-                		next();
                 		ArrayList<Type> retorno = exprList();
                 		if(currentMethod != null) {
                 			String result = currentMethod.checkSignature(retorno);
@@ -1015,8 +1044,6 @@ public class Compiler {
         		if(classe != null)
         			tipoPrimary = classe;
         	}
-        } else {
-            tipoPrimary = readExpr();
         }
         return tipoPrimary;
     }
@@ -1055,7 +1082,7 @@ public class Compiler {
         next();
         Type tipo = expr();
         if(tipo != Type.booleanType)
-        	error("If condition must be boolean");
+        	error("If condition must be a valid boolean expression");
         check(Token.LEFTCURBRACKET, "'{' expected after the 'if' expression");
         next();
         statementList();         
@@ -1075,6 +1102,9 @@ public class Compiler {
     private void whileStat() {
         next();
         Type tipo = expr();
+        
+        // TODO: ERR-SIN38 -> segundo o teste, o erro devia ser falta de }, mas como não tem statement, dá erro de falta de statement 
+        
         if(tipo != Type.booleanType)
         	error("While condition must be boolean");
         check(Token.LEFTCURBRACKET, "'{' expected after the 'while' expression");
@@ -1088,13 +1118,28 @@ public class Compiler {
     private void returnStat() { 
     	Method currentMethod = symbolTable.getCurrentMethod();
         next();
+        Token expr = lexer.token;
         Type tipo = expr();
-        if(currentMethod != null)
-        	if(currentMethod.getType() == Type.undefinedType)
+        if(expr == Token.NIL) {
+        	tipo = Type.nullType;
+        	next();
+        }
+        if(currentMethod != null) {
+        	Type metodoTipo = currentMethod.getType();
+        	if(metodoTipo == Type.undefinedType)
         		error("Illegal return statement. Method "+currentMethod.getName()+ " shouldn't return anything");
-        	else if(currentMethod.getType() != tipo)
-        		error("Type of return expression isn't the same of the method declaration");
-    
+        	else {
+        		if(metodoTipo instanceof CianetoClass && (!(tipo instanceof CianetoClass) && tipo != Type.nullType))
+        			error("Type of return expression isn't the same of the method declaration 1");
+        		else if (metodoTipo instanceof CianetoClass && tipo instanceof CianetoClass) {
+            		if(!((CianetoClass)tipo).findParent(metodoTipo.getName()))
+            			error("Type of return expression isn't the same of the method declaration 2");
+            	} else if(metodoTipo == Type.stringType && (tipo != Type.stringType && tipo != Type.nullType)) {
+            		error("Type of return expression isn't the same of the method declaration 3");
+            	} else if(tipo == Type.undefinedType)
+            		error("Type of return expression isn't the same of the method declaration 4");
+        	}
+        }
     }
 
     // WriteStat ::= “Out” “.” [ “print:” | “println:” ] Expression

@@ -1,0 +1,21 @@
+/*
+Joao Vitor de Sa Medeiros Santos
+jvsms13@gmail.com
+joaovitor.santos@dcomp.sor.ufscar.br
+*/
+
+
+@cep(8, "'=>' nao e um operador valido",
+   "Expression expected OR invalid sequence of symbols",
+    "comp.Compiler.ifStatement() OR lexer.Lexer.nextToken()")
+
+class Program
+
+    func run {
+
+      if 4 => 3 {
+      }
+
+    }
+
+end
