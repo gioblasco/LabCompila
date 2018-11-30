@@ -1,8 +1,32 @@
 Relatorio do Compilador
 
+0 de um total de 3 erros que deveriam ser sinalizados nao o foram (0%)
+0 erros foram sinalizados na linha errada (0%)
 1 erros foram sinalizados em 1 arquivos sem erro (100%)
+Todos os erros que deveriam ter sido sinalizados o foram
+Um ou mais arquivos de teste tinham erros, mas estes foram sinalizados nos numeros de linhas corretos
 ######################################################
 Erros que foram sinalizados mas nao deveriam ter sido:
 
-ok-queue.ci, 50, Invalid expression at left size of assignment.
+ok-queue.ci, 50, Class Node or its superclasses have no public method named number
+
+######################################################
+Em todos os testes abaixo, o compilador sinalizou o erro na linha correta (quando o teste tinha erros) ou nao sinalizou o erro (quando o teste NAO tinha erros). Mas eh necessario conferir se as mensagens emitidas pelo compilador sao compativeis com as mensagens de erro sugeridas pelas chamadas aos metaobjetos dos testes. 
+
+A lista abaixo contem o nome do arquivo de teste, a mensagem que ele sinalizou e a mensagem sugerida pelo arquivo de teste
+
+ER-SIN43.ci
+The compiler message was: "Class 'Program' must have a public method called 'run'"
+The 'cep' message is:      "function or field declaration expected"
+
+
+ER-SIN57.ci
+The compiler message was: "Class 'Program' must have a public method called 'run'"
+The 'cep' message is:      "'public', 'private' or '}' expected"
+
+
+ER-SIN-EXTRA.ci
+The compiler message was: "'{' expected"
+The 'cep' message is:      "'{' expected"
+
 

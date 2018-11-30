@@ -1,0 +1,13 @@
+@cep(10, "falta ';' apos a atribuicao", "';' expected")
+
+class Program
+
+    func run {
+
+        var Int i;
+        i = In.readInt;
+        if 3 > 0 {
+            i = 1
+        }
+    }
+end

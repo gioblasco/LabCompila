@@ -16,7 +16,7 @@ public class Compiler {
 
 	// atributos globais auxiliares
 	public boolean canBeLeft;
-	public boolean mustBeAssign;
+	public boolean hasReturn;
 	
     // compile must receive an input with an character less than
     // p_input.lenght
@@ -68,12 +68,16 @@ public class Compiler {
             }
 
         }
-        if(symbolTable.getInGlobal("Program") == null) {
-        	error("File must have a class called Program"); // TODO: Entender como mostrar esse erro
+        try {
+	        if(symbolTable.getInGlobal("Program") == null) {
+	        	error("File must have a class called Program");
+	        }
+        } catch (CompilerError e) {
+        	thereWasAnError = true;
         }
         if (!thereWasAnError && lexer.token != Token.EOF) {
             try {
-                error("End of file expected");
+                error("Class or end of file expected");
             } catch (CompilerError e) {
             }
         }
@@ -435,22 +439,18 @@ public class Compiler {
         		if(qualifier.contains("override") && tempMethod == null) { // se tem override e n tem o metodo no pai
         			error("Trying to override a non existent method " + method.getName());
                 } else if(tempMethod != null){ // se tem o metodo no pai
-                	if(!qualifier.contains("override"))
-                		error("Trying to redefine a method " +method.getName()+ " without 'override' keyword");
+                	if(tempMethod.getType() != method.getType())
+                		error("Trying to override method "+method.getName()+" of superclass with different type");
                 	else {
-	                	if(tempMethod.getType() != method.getType())
-	                		error("Trying to override method "+method.getName()+" of superclass with different type");
-	                	else {
-	                    	superparameters = tempMethod.getParameters();
-	                    	if(superparameters.size() != 0) {
-		                    	for(Field f : superparameters)
-		                    		supertypes.add(f.getType());
-	                    	}
-	                    	if(!method.checkSignature(supertypes).equals(""))
-	                    		error("Trying to override method " +method.getName() + " of superclass with different signature");
-	                    	else
-	                    		classe.getPublicMethod().put(method.getName(), method);
-	                	}
+                    	superparameters = tempMethod.getParameters();
+                    	if(superparameters.size() != 0) {
+	                    	for(Field f : superparameters)
+	                    		supertypes.add(f.getType());
+                    	}
+                    	if(!method.checkSignature(supertypes).equals(""))
+                    		error("Trying to override method " +method.getName() + " of superclass with different signature.");
+                    	else
+                    		classe.getPublicMethod().put(method.getName(), method);
                 	}
                 } else {
                 	classe.getPublicMethod().put(method.getName(), method);
@@ -466,7 +466,13 @@ public class Compiler {
        
         symbolTable.setCurrentMethod(method);
         
+        this.hasReturn = false;
         statementList();
+        if(t != Type.undefinedType && this.hasReturn == false)
+        	error("Missing 'return' statement");
+        else
+        	this.hasReturn = false;
+        
         if (lexer.token != Token.RIGHTCURBRACKET) {
             error("'}' expected");
         }
@@ -624,7 +630,7 @@ public class Compiler {
         	} else if(tipoExpr1 == Type.stringType && (tipoExpr2 != Type.stringType && tipoExpr2 != Type.nullType)) {
         		error("Only allowed to compare a String with another String or nil value");
         		erro = true;
-        	} else if(tipoExpr1 == Type.undefinedType && tipoExpr2 == Type.undefinedType) {
+        	} else if(tipoExpr1 == Type.undefinedType || tipoExpr2 == Type.undefinedType) {
         		error("Trying to compare undefined types");
         		erro = true;
         	}
@@ -871,19 +877,16 @@ public class Compiler {
                 				error("Trying to access a method of a non-object");
                 			else {
 	                			classe = (CianetoClass) t;
-	                			currentMethod = classe.getMethod(lexer.getStringValue());
-	                			currentField = classe.getFieldList().get(lexer.getStringValue());
+	                			currentMethod = classe.getPublicMethod(lexer.getStringValue());
 	                			
-	                			if(currentMethod == null && currentField == null)
-	                				error("Class " + classe.getName() + " has no method or field named " + lexer.getStringValue());
-	                			else if(currentMethod != null) {
+	                			if(currentMethod == null)
+	                				error("Class " + classe.getName() + " or its superclasses have no public method named " + lexer.getStringValue());
+	                			else {
 	                				String result = currentMethod.checkSignature(null);
 	                				if (!result.equals(""))
 	                					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
 	                				else
 	                					tipoPrimary = currentMethod.getType();
-	                			} else {
-	                				tipoPrimary = currentField.getType();
 	                			}
                 			}
 	                		next();
@@ -900,7 +903,7 @@ public class Compiler {
 	                			classe = (CianetoClass) t;
 	                			currentMethod = classe.getMethod(lexer.getStringValue().replace(":",""));
 	                			if(currentMethod == null)
-	                				error("Class "+classe.getName()+" has no method named " + lexer.getStringValue());
+	                				error("Class "+classe.getName()+" or its superclasses have no public method named " + lexer.getStringValue());
 	                		}
 	                		next();
                 		}
@@ -916,7 +919,7 @@ public class Compiler {
                 		if( (classe = (CianetoClass)symbolTable.getInGlobal(identifier)) == null )
                 			error("Trying to create a new instance of an undefined class " + identifier);
                 		else
-                			tipoPrimary = Type.nullType;
+                			tipoPrimary = classe;
                 		next();
                 	}                     	
                 }
@@ -1113,16 +1116,17 @@ public class Compiler {
         		error("Illegal return statement. Method "+currentMethod.getName()+ " shouldn't return anything");
         	else {
         		if(metodoTipo instanceof CianetoClass && (!(tipo instanceof CianetoClass) && tipo != Type.nullType))
-        			error("Type of return expression isn't the same of the method declaration 1");
+        			error("Type of return expression isn't the same of the method declaration");
         		else if (metodoTipo instanceof CianetoClass && tipo instanceof CianetoClass) {
             		if(!((CianetoClass)tipo).findParent(metodoTipo.getName()))
-            			error("Type of return expression isn't the same of the method declaration 2");
+            			error("Type of return expression isn't the same of the method declaration");
             	} else if(metodoTipo == Type.stringType && (tipo != Type.stringType && tipo != Type.nullType)) {
-            		error("Type of return expression isn't the same of the method declaration 3");
+            		error("Type of return expression isn't the same of the method declaration");
             	} else if(tipo == Type.undefinedType)
-            		error("Type of return expression isn't the same of the method declaration 4");
+            		error("Type of return expression isn't the same of the method declaration");
         	}
         }
+        this.hasReturn = true;
     }
 
     // WriteStat ::= “Out” “.” [ “print:” | “println:” ] Expression

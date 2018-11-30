@@ -273,6 +273,7 @@ public class Comp {
 		try {
 			numChRead = stream.read( input, 0, (int ) file.length() );
 			if ( numChRead != file.length() ) {
+				System.out.println(numChRead + "\t" + file.length());
 				outError.println("Read error in file " + filename);
 				System.out.println("Read error in file " + filename);
 				stream.close();

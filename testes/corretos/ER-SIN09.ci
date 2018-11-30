@@ -1,0 +1,20 @@
+/*
+Isabela Sayuri Matsumoto - 726539 isabelasassa@hotmail.com
+*/
+
+@cep(9,"operadores de comparacao nao podem ser usados em sequencia","'{' expected", "comp.Compiler.ifStatement()")
+
+class Program
+
+    var Int a;
+    var Int b;
+    var Int c;
+
+    func run{
+        if self.a < self.b < self.c {
+            Out.println: self.a;
+        }
+
+    }
+
+end

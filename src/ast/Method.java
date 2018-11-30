@@ -53,7 +53,12 @@ public class Method {
 			
 			for(int i = 0; i < tam1; i++) {
 				if(parameters.get(i) != this.parameters.get(i).getType()) {
-					retorno.concat("\n\tExpected "+this.parameters.get(i).getType().getName() + " but received " + parameters.get(i).getName() + "at the "+ (i+1) +"º parameter");
+					if(parameters.get(i) instanceof CianetoClass && this.parameters.get(i).getType() instanceof CianetoClass) {
+						if(!((CianetoClass)parameters.get(i)).findParent(this.parameters.get(i).getType().getName())) {
+							retorno = retorno.concat("\n\tTrying to use a parameter of type " +parameters.get(i).getName()+ " that is not subclass of " + this.parameters.get(i).getType().getName());
+						}
+					} else
+						retorno = retorno.concat("\n\tExpected "+this.parameters.get(i).getType().getName() + " but received " + parameters.get(i).getName() + " at the "+ (i+1) +"º parameter");
 				}
 			}
 		}

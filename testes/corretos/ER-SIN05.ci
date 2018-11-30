@@ -1,0 +1,16 @@
+/*
+Isabela Salmeron Boschi
+isabelasalmeron@msn.com
+*/
+@cep(9, "; ausente depois de readInt", "';' expected", "comp.Compiler.factor()")
+
+class Program
+
+    func run {
+
+        var Int i, j;
+        i = In.readInt
+
+    }
+
+end
