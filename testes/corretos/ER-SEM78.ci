@@ -3,7 +3,7 @@ Gustavo Eda
 edapd12@gmail.com
 */
 
-@cep(5, "classe Program ausente", "Source code without a class 'Program'", "comp.Compiler.program()")
+@cep(8, "classe Program ausente", "Source code without a class 'Program'", "comp.Compiler.program()")
 
 class A
 
