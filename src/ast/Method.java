@@ -40,7 +40,7 @@ public class Method {
 	private ArrayList<Field> parameters;
 	
 	// Returns "" if okay, else a multiline error message.
-	public String checkSignature(ArrayList<Type> parameters) {
+	public String checkSignature(ArrayList<Type> parameters) { // TODO: arrumar para o recebimento de tipos compatives -> checar assignexpr
 		String retorno = "";
 		int tam1 = 0, tam2 = 0;
 		if(parameters != null || this.parameters != null) {

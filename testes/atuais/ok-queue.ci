@@ -22,6 +22,14 @@ class Node
             self.next.print;
         }
     }
+
+    func setNumber: Int n {
+      self.number = n;
+    }
+
+    func setNext: Node n {
+      self.next = n;
+    }
 end
 
 class Head
@@ -47,19 +55,18 @@ class Head
 
         aux = Node.new;
 
-        aux.number = num;
-        aux.next = nil;
+        aux.setNumber: num;
+        aux.setNext: nil;
 
         if first == nil && end == nil{
             self.first = aux;
         } else {
-            self.end.next = aux;
+            self.end.setNext: aux;
         }
 
         self.end = aux;
     }
 
-    func print:
 end
 
 class Program
@@ -81,7 +88,7 @@ class Program
 
       while head.nElements < max {
           aux = In.readInt;
-          head.insert:aux;
+          head.insert: aux;
       }
 
       head.print;
