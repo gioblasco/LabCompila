@@ -40,7 +40,7 @@ public class Method {
 	private ArrayList<Field> parameters;
 	
 	// Returns "" if okay, else a multiline error message.
-	public String checkSignature(ArrayList<Type> parameters) { // TODO: arrumar para o recebimento de tipos compatives -> checar assignexpr
+	public String checkSignature(ArrayList<Type> parameters) {
 		String retorno = "";
 		int tam1 = 0, tam2 = 0;
 		if(parameters != null || this.parameters != null) {
@@ -53,10 +53,15 @@ public class Method {
 			
 			for(int i = 0; i < tam1; i++) {
 				if(parameters.get(i) != this.parameters.get(i).getType()) {
-					if(parameters.get(i) instanceof CianetoClass && this.parameters.get(i).getType() instanceof CianetoClass) {
-						if(!((CianetoClass)parameters.get(i)).findParent(this.parameters.get(i).getType().getName())) {
+					if(this.parameters.get(i).getType() instanceof CianetoClass && (!(parameters.get(i) instanceof CianetoClass) && parameters.get(i) != Type.nullType)) {
+						retorno = retorno.concat("\n\tExpected " +this.parameters.get(i).getType().getName()+ " or nil, but received " + parameters.get(i).getName());
+					} else if (parameters.get(i) instanceof CianetoClass && this.parameters.get(i).getType() instanceof CianetoClass) {
+						if(!((CianetoClass)parameters.get(i)).findParent(this.parameters.get(i).getType().getName()))
 							retorno = retorno.concat("\n\tTrying to use a parameter of type " +parameters.get(i).getName()+ " that is not subclass of " + this.parameters.get(i).getType().getName());
-						}
+					} else if (this.parameters.get(i).getType() == Type.stringType && (parameters.get(i) != Type.stringType && parameters.get(i) != Type.nullType)) {
+						retorno = retorno.concat("\n\tExpected " +this.parameters.get(i).getType().getName()+ " or nil, but received " +parameters.get(i).getName());
+					} else if (this.parameters.get(i).getType() == Type.undefinedType || parameters.get(i) == Type.undefinedType) {
+						retorno = retorno.concat("\n\tTrying to use parameters of undefined type");
 					} else
 						retorno = retorno.concat("\n\tExpected "+this.parameters.get(i).getType().getName() + " but received " + parameters.get(i).getName() + " at the "+ (i+1) +"º parameter");
 				}

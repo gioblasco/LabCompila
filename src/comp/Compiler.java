@@ -630,6 +630,9 @@ public class Compiler {
         	} else if(tipoExpr1 == Type.stringType && (tipoExpr2 != Type.stringType && tipoExpr2 != Type.nullType)) {
         		error("Only allowed to compare a String with another String or nil value");
         		erro = true;
+        	} else if(tipoExpr1 == Type.nullType && tipoExpr2 == Type.nullType) {
+        		error("Not allowed to compare null types");
+        		erro = true;
         	} else if(tipoExpr1 == Type.undefinedType || tipoExpr2 == Type.undefinedType) {
         		error("Trying to compare undefined types");
         		erro = true;
