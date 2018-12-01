@@ -636,6 +636,9 @@ public class Compiler {
         	} else if(tipoExpr1 == Type.undefinedType || tipoExpr2 == Type.undefinedType) {
         		error("Trying to compare undefined types");
         		erro = true;
+        	} else if((tipoExpr1 == Type.intType || tipoExpr1 == Type.booleanType) && tipoExpr1 != tipoExpr2) {
+        		error("Trying to compare incompatible types");
+        		erro = true;
         	}
         	if(!erro)
         		tipoExpr1 = Type.booleanType;

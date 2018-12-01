@@ -58,13 +58,17 @@ class Head
         aux.setNumber: num;
         aux.setNext: nil;
 
-        if first == nil && end == nil{
+        if (self.first == nil) && (self.end == nil) {
             self.first = aux;
         } else {
             self.end.setNext: aux;
         }
 
         self.end = aux;
+    }
+
+    func getNElements -> Int {
+      return self.nElements;
     }
 
 end
@@ -75,6 +79,7 @@ class Program
       var Head head;
       var Int max;
       var Int aux;
+      var Int count;
 
       count = 0;
       max = 10;
@@ -86,7 +91,7 @@ class Program
       head = Head.new;
       head.init;
 
-      while head.nElements < max {
+      while head.getNElements < max {
           aux = In.readInt;
           head.insert: aux;
       }

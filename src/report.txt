@@ -1,9 +1,5 @@
 Relatorio do Compilador
 
-1 erros foram sinalizados em 1 arquivos sem erro (100%)
-######################################################
-Erros que foram sinalizados mas nao deveriam ter sido:
-
-ok-queue.ci, 59, Wrong usage of the method 
-	Expected Node but received NullType at the 1º parameter
-
+0 erros foram sinalizados em 1 arquivos sem erro (0%)
+O compilador nao sinalizou nenhum erro que nao deveria ter sinalizado
+Para o caso de teste que voce utilizou, o compilador esta correto

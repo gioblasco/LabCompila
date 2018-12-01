@@ -62,8 +62,9 @@ public class Method {
 						retorno = retorno.concat("\n\tExpected " +this.parameters.get(i).getType().getName()+ " or nil, but received " +parameters.get(i).getName());
 					} else if (this.parameters.get(i).getType() == Type.undefinedType || parameters.get(i) == Type.undefinedType) {
 						retorno = retorno.concat("\n\tTrying to use parameters of undefined type");
-					} else
-						retorno = retorno.concat("\n\tExpected "+this.parameters.get(i).getType().getName() + " but received " + parameters.get(i).getName() + " at the "+ (i+1) +"º parameter");
+					} else if(this.parameters.get(i).getType() == Type.intType || this.parameters.get(i).getType() == Type.booleanType) {
+						retorno = retorno.concat("\n\tExpected " +this.parameters.get(i).getType().getName() + " but received " + parameters.get(i).getName());
+					}
 				}
 			}
 		}
