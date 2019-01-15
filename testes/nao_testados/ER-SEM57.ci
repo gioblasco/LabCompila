@@ -4,7 +4,7 @@ giovana.vmorais@gmail.com
 */
 
 @cep(19, 
-	"Testa se o compilador sinaliza erro nas comparações com '==', 
+	"Testa se o compilador sinaliza erro nas comparacoes com '=='", 
 	"Incompatible types cannot be compared with '==' because the results will always be 'false'",
 	"comp.Compiler.expr()")
 
@@ -25,5 +25,5 @@ class Program
         if a == b {
          	Out.println: 0;   
         }
-	}
+    }
 end

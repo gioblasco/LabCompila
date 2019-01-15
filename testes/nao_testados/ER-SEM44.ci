@@ -1,15 +1,15 @@
 @cep(25, "Não se pode escrever objetos", 
-  "Command 'write' does not accept objects", "comp.Compiler.writeStatement()")
+  "Command 'println' does not accept objects", "comp.Compiler.writeStatement()")
   
 
 class A 
       
-   private Int n;
+   private var Int n;
    
    public func set: Int n {
       self.n = n;
    }   
-   public get -> Int {
+   public func get -> Int {
       return self.n;
    }   
 

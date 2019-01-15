@@ -1,10 +1,10 @@
-@cep(10, "'++' can only be used with Int or String")
+@cep(7, "Concatenacao so pode ser feita com Int ou String", "'++' can only be used with Int or String")
 
 class A
 end
 
-class Program {
+class Program
     func run {
         Out.println: A.new ++ 0;
     }
-}
+end

@@ -3,8 +3,9 @@ Vitor Mesquita Fogaça
 vitor.fogaca@outlook.com
 */
       
-@cep(2, "missing type in variable declaration"); 
+@cep(2, "Falta de tipo na declaracao de campo", "missing type in variable declaration")
 class Teste
+
     var n;
 	
     func get -> Int {

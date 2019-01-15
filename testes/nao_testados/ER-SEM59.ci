@@ -4,7 +4,7 @@ giovana.vmorais@gmail.com
 */
 
 @cep(19,
-"Chamada a método privado",
+"Chamada a metodo privado",
 "Method 'p' was not found in the public interface of 'A' or ts superclasses",
 "comp.Compiler.factor()")
 

@@ -1,4 +1,4 @@
-@cep(8, "Não se pode atribuir objetos a métodos ")
+@cep(8, "Nao se pode atribuir objetos a metodos", "'run' is not declared")
 
 class A end
 

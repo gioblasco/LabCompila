@@ -4,9 +4,9 @@
 open
 class A 
    
-   private Int n;
+   private var Int n;
    
-   public func set: Int n{
+   public func set: Int n {
       self.n = n;
    }   
    public func get -> Int {

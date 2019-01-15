@@ -13,11 +13,12 @@
 */
 
 
-class Program {
+class Program
 
     func run {
         var Boolean b;
         b = false;
+
         repeat
             
         until false;
@@ -39,5 +40,6 @@ class Program {
             j = j + 1;
         until (j < n);
     }
-}
+
+end
 

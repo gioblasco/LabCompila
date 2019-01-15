@@ -1,4 +1,4 @@
-@cep(9, "An overridden method should be preceded by 'override'")
+@cep(9, "Metodo sobrescrevido sem override",  "An overridden method should be preceded by 'override'")
 
 open 
 class A

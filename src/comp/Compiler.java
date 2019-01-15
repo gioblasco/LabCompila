@@ -212,14 +212,14 @@ public class Compiler {
 
         memberList();
         
+        if (!lexer.getStringValue().equals("end")) {
+            error("'end' expected in class declaration");
+        }
+        
         if(classe.getName().equals("Program")) {
         	if(classe.getPublicMethod("run") == null) {
         		error("Class 'Program' must have a public method called 'run'");
         	}
-        }
-        
-        if (!lexer.getStringValue().equals("end")) {
-            error("'end' expected in class declaration");
         }
         
         next();
@@ -449,8 +449,12 @@ public class Compiler {
                     	}
                     	if(!method.checkSignature(supertypes).equals(""))
                     		error("Trying to override method " +method.getName() + " of superclass with different signature.");
-                    	else
-                    		classe.getPublicMethod().put(method.getName(), method);
+                    	else {
+                    		if(!qualifier.contains("override"))
+                    			error("An overridden method should be preceded by 'override'");
+                    		else
+                    			classe.getPublicMethod().put(method.getName(), method);
+                    	}
                 	}
                 } else {
                 	classe.getPublicMethod().put(method.getName(), method);
@@ -525,16 +529,16 @@ public class Compiler {
                 checkSemiColon = false;
                 break;
             case WHILE:
-            	symbolTable.setWhileStat(true);
+            	symbolTable.setLoopStat(symbolTable.getLoopStat() + 1);
                 whileStat();
-                symbolTable.setWhileStat(false);
+                symbolTable.setLoopStat(symbolTable.getLoopStat() - 1);
                 checkSemiColon = false;
                 break;
             case RETURN:
                 returnStat();
                 break;
             case BREAK:
-            	if(symbolTable.getWhileStat() == false)
+            	if(symbolTable.getLoopStat() == 0)
             		error("'break' statament outside a 'while' statement");
                 breakStat();
                 break;
@@ -543,7 +547,9 @@ public class Compiler {
                 checkSemiColon = false;
                 break;
             case REPEAT:
+            	symbolTable.setLoopStat(symbolTable.getLoopStat() + 1);
                 repeatStat();
+                symbolTable.setLoopStat(symbolTable.getLoopStat() - 1);
                 break;
             case VAR:
                 localDec();

@@ -1,9 +1,10 @@
-﻿/*
-Vitor Mesquita Fogaça
+/*
+Vitor Mesquita Fogaca
 vitor.fogaca@outlook.com
 */
       
-@cep(4, "missing 'return' statement");
+@cep(5, "Falta de 'return'", "missing 'return' statement")
+
 class Teste
     var Int n;
     
