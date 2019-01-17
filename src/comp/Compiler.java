@@ -429,36 +429,38 @@ public class Compiler {
 		if(tempMethod != null|| tempField != null)
         	error("Method " +method.getName()+ " has the same name as another member in the scope.");
 		else {
-	        if(qualifier.contains("private")) {
-	        	if(qualifier.contains("override"))
+	        if(qualifier.contains("private")) { 
+	        	if(qualifier.contains("override")) // privado e tem override
 	        		error("Cannot override a private method!");
-	        	else
+	        	else // privado e n tem override, entao adiciona
 	        		classe.getPrivateMethod().put(method.getName(), method);
 	        } else {
         		tempMethod = (classe.getParent() != null ) ? classe.getParent().getPublicMethod(method.getName()) : null;
-        		if(qualifier.contains("override") && tempMethod == null) { // se tem override e n tem o metodo no pai
-        			error("Trying to override a non existent method " + method.getName());
-                } else if(tempMethod != null){ // se tem o metodo no pai
-                	if(tempMethod.getType() != method.getType())
-                		error("Trying to override method "+method.getName()+" of superclass with different type");
-                	else {
-                    	superparameters = tempMethod.getParameters();
-                    	if(superparameters.size() != 0) {
-	                    	for(Field f : superparameters)
-	                    		supertypes.add(f.getType());
-                    	}
-                    	if(!method.checkSignature(supertypes).equals(""))
-                    		error("Trying to override method " +method.getName() + " of superclass with different signature.");
-                    	else {
-                    		if(!qualifier.contains("override"))
-                    			error("An overridden method should be preceded by 'override'");
-                    		else
-                    			classe.getPublicMethod().put(method.getName(), method);
-                    	}
+        		if(tempMethod == null) { 
+        			if(qualifier.contains("override")) // se tem override e n tem o metodo no pai
+        				error("Trying to override a non existent method " + method.getName());
+        			else // nao tem override e n tem metodo no pai
+        				classe.getPublicMethod().put(method.getName(), method);
+        		} else {
+        			superparameters = tempMethod.getParameters();
+                	if(superparameters.size() != 0) {
+                    	for(Field f : superparameters)
+                    		supertypes.add(f.getType());
                 	}
-                } else {
-                	classe.getPublicMethod().put(method.getName(), method);
-                }
+                	if(qualifier.contains("override")) {
+                		if(tempMethod.getType() != method.getType()) // tem override e os tipos sao diferentes
+                    		error("Trying to override method "+method.getName()+" of superclass with different type");
+                		else if(!method.checkSignature(supertypes).equals("")) // tem override e a assinatura eh diferente
+                        		error("Trying to override method " +method.getName() + " of superclass with different signature.");
+                		else // tem override e os metodos sao iguaizinhos
+                			classe.getPublicMethod().put(method.getName(), method);
+                	} else { 
+                		if(method.checkSignature(supertypes).equals("")) // nao tem override mas os metodos sao iguais
+                			error("An overridden method should be preceded by 'override'");
+                		else // nao tem override e os metodos sao diferentes
+                			classe.getPublicMethod().put(method.getName(), method);
+                	}
+        		}
 	        }
 		}
  
