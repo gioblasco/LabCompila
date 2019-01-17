@@ -41,7 +41,7 @@ The 'cep' message is:      ""
 
 
 ER-SEM51.ci
-The compiler message was: "Trying to override method put of superclass with different signature."
+The compiler message was: "Trying to override method put: of superclass with different signature."
 The 'cep' message is:      "Method 'put' is being redefined in subclass 'B' with a signature different from the method of superclass 'A'"
 
 
