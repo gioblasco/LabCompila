@@ -1,0 +1,8 @@
+Relatorio do Compilador
+
+1 erros foram sinalizados em 1 arquivos sem erro (100%)
+######################################################
+Erros que foram sinalizados mas nao deveriam ter sido:
+
+../testes/ok-queue.ci, 87, Class Head or its superclasses have no public method named nElements
+

@@ -704,7 +704,7 @@ public class Compiler {
             	}
             } else {
             	if(tipoSumSub1 != Type.booleanType || tipoSumSub2 != Type.booleanType) { // verifica se são Boolean (quando OR)
-            		error("AND only apply to boolean values");
+            		error("OR only apply to boolean values");
             		erro = true;
             	}
             }
