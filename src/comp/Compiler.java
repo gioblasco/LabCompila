@@ -884,7 +884,7 @@ public class Compiler {
                 		Type t  =  symbolTable.getInLocal(identifier);
                 		
                 		if(t == null || t == Type.undefinedType)
-                			error("Trying to use a object that does not exist");
+                			error("Trying to use a object that does not exist " + identifier);
                 		else {
                 			if(!(t instanceof CianetoClass))
                 				error("Trying to access a method of a non-object");
@@ -911,7 +911,7 @@ public class Compiler {
                 		} else {
 	                		Type t  =  symbolTable.getInLocal(identifier);
 	                		if(t == null || t == Type.undefinedType)
-	                			error("Trying to use a object that does not exist");
+	                			error("Trying to use a object that does not exist " + identifier);
 	                		else {
 	                			classe = (CianetoClass) t;
 	                			currentMethod = classe.getMethod(lexer.getStringValue());

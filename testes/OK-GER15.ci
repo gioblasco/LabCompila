@@ -17,123 +17,123 @@ open
 class A
     var Int i;
     var Int j;
-    
+
     private func p {
         Out.print: self.i;
-    }    
-    
+    }
+
     private func q {
         Out.print: self.j;
-    }    
-    
+    }
+
     func init_A {
         self.i = 1;
         self.j = 2;
-    }  
-    
+    }
+
     func call_p {
         self.p;
-    }    
-    
+    }
+
     func call_q {
         self.q;
-    }    
-    
+    }
+
     func r {
         Out.print: self.i;
-    }    
-    
+    }
+
     func s {
         Out.print: self.j;
-    }    
+    }
 end
 
 
 class B extends A
     var Int i;
     var Int j;
-    
+
     private func p {
         Out.print: self.i;
-    }    
-    
+    }
+
     private func q {
         Out.print: self.j;
-    }    
-    
+    }
+
     func init_B {
         self.i = 3;
         self.j = 4;
-    }    
-    
+    }
+
     override
     func call_p {
         self.p;
-    }  
-    
+    }
+
     override
     func call_q {
         self.q;
-    }    
-    
+    }
+
     override
     func r {
         Out.print: self.i;
-    }    
-    
+    }
+
     override
     func s {
         Out.print: self.j;
-    }    
+    }
 end
 
 
 class C extends A
     var int i;
     var int j;
-    
+
     private func p {
         Out.print: self.i;
-    }    
-    
+    }
+
     private func q {
         Out.print: self.j;
-    }    
-    
+    }
+
     func init_C {
         self.i = 5;
         self.j = 6;
-    }    
-    
+    }
+
     override
     func call_p {
         this.p;
-    }  
-    
+    }
+
     override
     func call_q {
         self.q;
-    }    
-    
+    }
+
     override
     func r {
         Out.print: self.i;
-    }    
-    
+    }
+
     override
     func s {
         Out.print: self.j;
-    }    
+    }
 end
 
 
 class Program
-    
+
     func run {
         var A a;
         var B b;
         var C c;
-        
+
         Out.println: "";
         Out.println: "Ok-ger15";
         Out.println: "The output should be :";
@@ -159,7 +159,5 @@ class Program
         c.call_q;
         c.r;
         c.s;
-    }    
+    }
 end
-
-
