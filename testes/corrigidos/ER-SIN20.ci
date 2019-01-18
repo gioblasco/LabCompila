@@ -1,9 +1,0 @@
-@cep(6, "Falta ';' apos o primeiro 'Out.print(0)'", "';' expected")
-
-class Program
-
-    func run {
-        Out.print: 0
-        Out.print: 1;
-    }
-end
