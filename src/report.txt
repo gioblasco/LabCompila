@@ -1,10 +1,16 @@
 Relatorio do Compilador
 
-0 de um total de 48 erros que deveriam ser sinalizados nao o foram (0%)
-0 erros foram sinalizados na linha errada (0%)
-1 erros foram sinalizados em 18 arquivos sem erro (5%)
+0 de um total de 147 erros que deveriam ser sinalizados nao o foram (0%)
+1 erros foram sinalizados na linha errada (0%)
+1 erros foram sinalizados em 67 arquivos sem erro (1%)
 Todos os erros que deveriam ter sido sinalizados o foram
-Um ou mais arquivos de teste tinham erros, mas estes foram sinalizados nos numeros de linhas corretos
+######################################################
+Erros que foram sinalizados na linha errada:
+
+ER-SEM40.ci
+    correto:    49, Type error: the type of the real parameter is not subclass of the type of the formal parameter (comp.Compiler.factor())
+    sinalizado: 31, An overridden method should be preceded by 'override'
+
 ######################################################
 Erros que foram sinalizados mas nao deveriam ter sido:
 
@@ -18,6 +24,26 @@ A lista abaixo contem o nome do arquivo de teste, a mensagem que ele sinalizou e
 ER-SEM47.ci
 The compiler message was: "Superclass A has no method named m"
 The 'cep' message is:      "Method 'm' was not found in superclass 'B' or its superclasses"
+
+
+ER-SEM68.ci
+The compiler message was: "Class Program has no method or field named p"
+The 'cep' message is:      "Method 'p' was not found in class 'Program' or its superclasses"
+
+
+ER-SIN59.ci
+The compiler message was: "Value must be assigned to some variable. It is not being used."
+The 'cep' message is:      "'until' expected"
+
+
+ER-SIN16.ci
+The compiler message was: "Identifier expected"
+The 'cep' message is:      "Identifier expected"
+
+
+ERR-SEM51.ci
+The compiler message was: "Trying to override method put: of superclass with different signature."
+The 'cep' message is:      "Method 'put' is being redefined in subclass 'B' with a signature different from the method of superclass 'A'"
 
 
 ER-SEM54.ci
@@ -35,14 +61,74 @@ The compiler message was: "Concatenation only applies to Int or String values"
 The 'cep' message is:      "'++' can only be used with Int or String"
 
 
+ER-SIN22.ci
+The compiler message was: "';' expected"
+The 'cep' message is:      "';' expected"
+
+
+ER-SIN36.ci
+The compiler message was: "A type was expected"
+The 'cep' message is:      "Identifier expected"
+
+
+ER-SIN40.ci
+The compiler message was: "A field must be declared private"
+The 'cep' message is:      "Attempt to declare public instance variable 'i'"
+
+
+test03.ci
+The compiler message was: "';' expected"
+The 'cep' message is:      "Missing ';'"
+
+
+errolex1.ci
+The compiler message was: "Class Integer not Found!"
+The 'cep' message is:      "type 'Integer' not recognized"
+
+
+ER-SEM29.ci
+The compiler message was: "Trying to override a non existent method put:"
+The 'cep' message is:      "Method 'put' of the subclass 'B' has a signature different from the same method of superclass 'A'"
+
+
+ER-SEM41.ci
+The compiler message was: "Only allowed to assign a class with another instance of the same class or nil value"
+The 'cep' message is:      "Type error: the type of the expression of the right-hand side is a basic type and the type of the variable of the left-hand side is a class"
+
+
+ER-SIN26.ci
+The compiler message was: "If condition must be a valid boolean expression"
+The 'cep' message is:      "Expression expected OR invalid sequence of symbols"
+
+
+ER-SIN01.ci
+The compiler message was: "'{' expected"
+The 'cep' message is:      "'{' expected"
+
+
 ER-SEM91.ci
 The compiler message was: "Trying to use a object that does not exist numero. Maybe using 'self' can help!"
 The 'cep' message is:      ""
 
 
 ER-SEM51.ci
-The compiler message was: "Trying to override method put of superclass with different signature."
+The compiler message was: "Trying to override method put: of superclass with different signature."
 The 'cep' message is:      "Method 'put' is being redefined in subclass 'B' with a signature different from the method of superclass 'A'"
+
+
+ER-SEM08.ci
+The compiler message was: "+ and - only apply to Int values"
+The 'cep' message is:      "type boolean does not support operation '+'"
+
+
+ER-SEM39.ci
+The compiler message was: "Type of return expression isn't the same of the method declaration"
+The 'cep' message is:      "Type error: type of the expression returned is not subclass of the method return type"
+
+
+ER-SIN27.ci
+The compiler message was: "If condition must be a valid boolean expression"
+The 'cep' message is:      "Expression expected OR Unknown sequence of symbols"
 
 
 ER-SEM46.ci
@@ -55,6 +141,16 @@ The compiler message was: "Class k not Found!"
 The 'cep' message is:      "Type 'k' was not found"
 
 
+ER-SEM07.ci
+The compiler message was: "Trying to access a method of a non-object"
+The 'cep' message is:      "Message send to a non-object receiver"
+
+
+ER-SIN38.ci
+The compiler message was: "Trying to use a object that does not exist end. Maybe using 'self' can help!"
+The 'cep' message is:      "'}' expected"
+
+
 ER-SEM12.ci
 The compiler message was: "+ and - only apply to Int values"
 The 'cep' message is:      "operator '+' of 'Int' expects an 'Int' value"
@@ -63,6 +159,26 @@ The 'cep' message is:      "operator '+' of 'Int' expects an 'Int' value"
 ER-SEM02.ci
 The compiler message was: "Trying to use a object that does not exist I. Maybe using 'self' can help!"
 The 'cep' message is:      "Variable 'I' was not declared"
+
+
+ER-SIN03.ci
+The compiler message was: "Identifier expected"
+The 'cep' message is:      "Identifier expected"
+
+
+test05.ci
+The compiler message was: "Trying to use a object that does not exist numero. Maybe using 'self' can help!"
+The 'cep' message is:      ""
+
+
+ER-SEM33.ci
+The compiler message was: "Method m has the same name as another member in the scope."
+The 'cep' message is:      "Method 'm' is being redeclared"
+
+
+ER-SIN58.ci
+The compiler message was: "Constructors can't receive parameters"
+The 'cep' message is:      "')' expected"
 
 
 ER-SEM53.ci
@@ -75,9 +191,39 @@ The compiler message was: "Class Program not Found!"
 The 'cep' message is:      "Type 'Program' was not found"
 
 
+test04.ci
+The compiler message was: "Invalid Character: ':'"
+The 'cep' message is:      ""
+
+
+ER-SIN20.ci
+The compiler message was: "';' expected"
+The 'cep' message is:      "';' expected"
+
+
+ER-SIN15.ci
+The compiler message was: "';' expected"
+The 'cep' message is:      "')' expected"
+
+
+ER-SIN18.ci
+The compiler message was: "';' expected"
+The 'cep' message is:      "';' expected"
+
+
+ER-SIN02.ci
+The compiler message was: "Identifier expected"
+The 'cep' message is:      "Missing identifier"
+
+
 ER-SIN35.ci
 The compiler message was: "'{' expected"
 The 'cep' message is:      "')' expected"
+
+
+ER-SIN10.ci
+The compiler message was: "Trying to use a object that does not exist a. Maybe using 'self' can help!"
+The 'cep' message is:      "'In.' expected after 'read' command"
 
 
 ER-SEM01.ci
@@ -85,9 +231,19 @@ The compiler message was: "Missing 'return' statement"
 The 'cep' message is:      "Missing 'return' statement in method 'm'"
 
 
+ER-SIN44.ci
+The compiler message was: "A field must be declared private"
+The 'cep' message is:      "Attempt to declare public instance variable 'i'"
+
+
 ER-SEM90.ci
 The compiler message was: "Invalid Character: ':'"
 The 'cep' message is:      ""
+
+
+ER-SIN41.ci
+The compiler message was: "Identifier expected in class declaration"
+The 'cep' message is:      "Identifier expected"
 
 
 ER-SEM20.ci
@@ -100,9 +256,39 @@ The compiler message was: "Invalid Character: '#'"
 The 'cep' message is:      "Unknown character"
 
 
+ER-SIN43.ci
+The compiler message was: "'end' expected in class declaration"
+The 'cep' message is:      "function or field declaration expected"
+
+
+ER-SEM35.ci
+The compiler message was: "Illegal return statement. Method m shouldn't return anything"
+The 'cep' message is:      "Illegal 'return' statement. Method returns 'void'"
+
+
+ER-SIN12.ci
+The compiler message was: "Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr"
+The 'cep' message is:      "Expression expected"
+
+
+ERR-SEM59.ci
+The compiler message was: "Class A or its superclasses have no public method named p"
+The 'cep' message is:      "Method 'p' was not found in the public interface of 'A' or its superclasses"
+
+
 ER-SEM44.ci
 The compiler message was: "Print or println parameter must be string or int"
 The 'cep' message is:      "Command 'println' does not accept objects"
+
+
+ER-SIN17.ci
+The compiler message was: "';' expected"
+The 'cep' message is:      "Missing ';'"
+
+
+ER-SEM-EXTRA02.ci
+The compiler message was: "Class B or its superclasses have no public method named se:"
+The 'cep' message is:      ""
 
 
 ER-SEM42.ci
@@ -120,14 +306,39 @@ The compiler message was: "Concatenation only applies to Int or String values"
 The 'cep' message is:      "'++' can only be used with Int or String"
 
 
+ER-SEM11.ci
+The compiler message was: "While condition must be boolean"
+The 'cep' message is:      "non-boolean expression in 'while' command"
+
+
 ER-SEM13.ci
 The compiler message was: "'readInt' or 'readString' was expected after 'In.'"
 The 'cep' message is:      "readBoolean is not defined"
 
 
+ER-SIN24.ci
+The compiler message was: "Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr"
+The 'cep' message is:      "Expression expected OR Unknown sequence of symbols"
+
+
 ER-SIN33.ci
 The compiler message was: "Class x not Found!"
 The 'cep' message is:      "Identifier expected"
+
+
+errosem1.ci
+The compiler message was: "Trying to use a object that does not exist erro. Maybe using 'self' can help!"
+The 'cep' message is:      "variable 'erro' not found"
+
+
+errosin2.ci
+The compiler message was: "Class n not Found!"
+The 'cep' message is:      "missing type in variable declaration"
+
+
+ERR-SEM57.ci
+The compiler message was: "Only allowed to compare a class with its subclasses"
+The 'cep' message is:      "Incompatible types cannot be compared with '==' because the results will always be 'false'"
 
 
 er-sin-100.ci
@@ -140,9 +351,19 @@ The compiler message was: "A type was expected"
 The 'cep' message is:      "Type expected"
 
 
+ER-SIN61.ci
+The compiler message was: "')' expected!"
+The 'cep' message is:      "')' expected after 'until' expression"
+
+
 ER-SEM05.ci
 The compiler message was: "Trying to assign incompatible types"
 The 'cep' message is:      "'int' cannot be assigned to 'boolean'"
+
+
+ER-SEM-EXTRA01.ci
+The compiler message was: "Class num4 not Found!"
+The 'cep' message is:      ""
 
 
 ER-SEM21.ci
@@ -155,14 +376,54 @@ The compiler message was: "'end' expected in class declaration"
 The 'cep' message is:      "'public', 'private', or '}' expected"
 
 
+ER-SIN11.ci
+The compiler message was: "Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr"
+The 'cep' message is:      "Missing 'Out.'"
+
+
+ER-SIN09.ci
+The compiler message was: "'{' expected after the 'if' expression"
+The 'cep' message is:      "'{' expected"
+
+
 ER-LEX03.ci
 The compiler message was: "Number out of limits"
 The 'cep' message is:      "literal int out of limits"
 
 
+ER-SIN57.ci
+The compiler message was: "'end' expected in class declaration"
+The 'cep' message is:      "'public', 'private' or '}' expected"
+
+
 er-sem82.ci
 The compiler message was: "'run' method in 'Program' class can't have parameters"
 The 'cep' message is:      ""
+
+
+errosin1.ci
+The compiler message was: "Missing 'return' statement"
+The 'cep' message is:      "missing 'return' statement"
+
+
+ER-SEM38.ci
+The compiler message was: "Only allowed to assign a class with its subclasses"
+The 'cep' message is:      "Type error: type of the right-hand side of the assignment is not a subclass of the left-hand side"
+
+
+ER-SEM24.ci
+The compiler message was: "Identifier expected"
+The 'cep' message is:      "Identifier expected"
+
+
+ER-SEM25.ci
+The compiler message was: "Identifier expected"
+The 'cep' message is:      "Identifier expected"
+
+
+ERR-SEM58.ci
+The compiler message was: "Only allowed to compare a class with its subclasses"
+The 'cep' message is:      "Incompatible types cannot be compared with '!=' because the result will always be 'false'"
 
 
 ER-SEM45.ci
@@ -175,9 +436,79 @@ The compiler message was: "Class A or its superclasses have no public method nam
 The 'cep' message is:      "Method 'p' was not found in the public interface of 'A' or ts superclasses"
 
 
+ER-SIN04.ci
+The compiler message was: "Trying to use a object that does not exist i. Maybe using 'self' can help!"
+The 'cep' message is:      "Statement expected"
+
+
+ER-SIN-EXTRA02.ci
+The compiler message was: "'end' expected in class declaration"
+The 'cep' message is:      ""
+
+
+ER-SIN-EXTRA.ci
+The compiler message was: "'{' expected"
+The 'cep' message is:      "'{' expected"
+
+
+ER-SIN29.ci
+The compiler message was: "'end' expected in class declaration"
+The 'cep' message is:      " Class member OR 'end' expected"
+
+
+ER-SIN13.ci
+The compiler message was: "'{' expected"
+The 'cep' message is:      "'{' expected"
+
+
+ER-SEM31.ci
+The compiler message was: "Method i has the same name as another member in the scope."
+The 'cep' message is:      "Method 'i' has name equal to an instance variable"
+
+
+ER-SEM79.ci
+The compiler message was: "'run' method in 'Program' class can't have parameters"
+The 'cep' message is:      "Method 'run' of class 'Program' cannot take parameters"
+
+
 ER-SEM23.ci
 The compiler message was: "Identifier expected"
 The 'cep' message is:      "Identifier expected"
+
+
+ER-SEM89.ci
+The compiler message was: "Repeat until condition must be boolean"
+The 'cep' message is:      "boolean expression expected in a repeat-until statement"
+
+
+ER-SEM34.ci
+The compiler message was: "Value must be assigned to some variable. It is not being used."
+The 'cep' message is:      "Message send 'a.m()' returns a value that is not used"
+
+
+ER-SEM70.ci
+The compiler message was: "Method m has the same name as another member in the scope."
+The 'cep' message is:      "Method 'm' is being redefined"
+
+
+ER-LEX-EXTRA01.ci
+The compiler message was: "Trying to use a object that does not exist ver. Maybe using 'self' can help!"
+The 'cep' message is:      ""
+
+
+ER-SIN28.ci
+The compiler message was: "'class' expected"
+The 'cep' message is:      "'class' expected"
+
+
+ER-SEM86.ci
+The compiler message was: "Trying to create a new instance of an undefined class A"
+The 'cep' message is:      "Class 'A' was not found"
+
+
+ER-SIN07.ci
+The compiler message was: "'readInt' or 'readString' was expected after 'In.'"
+The 'cep' message is:      "Command 'In.' without arguments"
 
 
 ER-LEX07.ci
@@ -185,9 +516,14 @@ The compiler message was: "Comment opened and not closed"
 The 'cep' message is:      "Comment started in line 5 was not closed"
 
 
+ER-SEM60.ci
+The compiler message was: "Superclass A has no method named p"
+The 'cep' message is:      "Method 'p' was not found in the public interface of 'A' or its superclasses"
+
+
 ER-SIN34.ci
 The compiler message was: "'{' expected"
-The 'cep' message is:      "')' expected"
+The 'cep' message is:      "'{' expected"
 
 
 ER-SEM49.ci
@@ -200,9 +536,44 @@ The compiler message was: "Trying to assign incompatible types"
 The 'cep' message is:      "Type error: 'nil' cannot be assigned to a variable of a basic type"
 
 
+errolex2.ci
+The compiler message was: "Trying to use a object that does not exist"
+The 'cep' message is:      "token 'this' not recognized"
+
+
 ER-SEM48.ci
 The compiler message was: "Identifier expected in class declaration"
 The 'cep' message is:      "Identifier expected"
+
+
+ER-SEM88.ci
+The compiler message was: "Repeat until condition must be boolean"
+The 'cep' message is:      "boolean expression expected in a repeat-until statement"
+
+
+ER-SIN19.ci
+The compiler message was: "';' expected"
+The 'cep' message is:      "';' expected"
+
+
+ER-SEM26.ci
+The compiler message was: "'break' statament outside a 'while' statement"
+The 'cep' message is:      "'break' statement found outside a 'while' statement"
+
+
+ER-SIN08.ci
+The compiler message was: "Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr"
+The 'cep' message is:      "Command ' Out.print' without arguments"
+
+
+ER-SIN60.ci
+The compiler message was: "')' expected!"
+The 'cep' message is:      "')' expected"
+
+
+ER-SIN14.ci
+The compiler message was: "Class or end of file expected"
+The 'cep' message is:      "'class' expected"
 
 
 ER-LEX05.ci
@@ -210,9 +581,34 @@ The compiler message was: "'_' cannot start an indentifier"
 The 'cep' message is:      "Identifier starting with underscore"
 
 
+ER-SEM80.ci
+The compiler message was: "'run' method in 'Program' class can't have a return"
+The 'cep' message is:      "Method 'run' of class 'Program' with a return value type different from 'void'"
+
+
 ER-SEM50.ci
 The compiler message was: "'break' statament outside a 'while' statement"
 The 'cep' message is:      "Command 'break' outside a command 'while'"
+
+
+ER-SEM78.ci
+The compiler message was: "File must have a class called Program"
+The 'cep' message is:      "Source code without a class 'Program'"
+
+
+ER-SIN-EXTRA01.ci
+The compiler message was: "'{' expected"
+The 'cep' message is:      ""
+
+
+ER-SIN06.ci
+The compiler message was: "Trying to use a object that does not exist"
+The 'cep' message is:      "Expression expected"
+
+
+ER-SEM61.ci
+The compiler message was: "Class C or its superclasses have no public method named s"
+The 'cep' message is:      "Method 's' was not found in class 'C' or its superclasses"
 
 
 ER-SEM52.ci
@@ -220,14 +616,104 @@ The compiler message was: "An overridden method should be preceded by 'override'
 The 'cep' message is:      "An overridden method should be preceded by 'override'"
 
 
+ER-SEM81.ci
+The compiler message was: "'run' method in 'Program' class can't be private"
+The 'cep' message is:      "Method 'run' of class 'Program' cannot be private"
+
+
+ER-SIN39.ci
+The compiler message was: "'{' expected"
+The 'cep' message is:      "'{' expected"
+
+
+ER-SIN25.ci
+The compiler message was: "Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr"
+The 'cep' message is:      "Expression expected OR invalid sequence of symbols"
+
+
 ER-SEM57.ci
 The compiler message was: "Only allowed to compare a class with its subclasses"
 The 'cep' message is:      "Incompatible types cannot be compared with '==' because the results will always be 'false'"
 
 
+ER-SIN23.ci
+The compiler message was: "Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr"
+The 'cep' message is:      "Statement expected"
+
+
+ER-SEM32.ci
+The compiler message was: "Method m has the same name as another member in the scope."
+The 'cep' message is:      "Method 'm' is being redeclared"
+
+
+ER-SEM06.ci
+The compiler message was: "Invalid expression at left size of assignment."
+The 'cep' message is:      "'operator expected' or 'variable expected at the left-hand side of a assignment'"
+
+
+ER-SEM77.ci
+The compiler message was: "Class 'Program' must have a public method called 'run'"
+The 'cep' message is:      "Method 'run' was not found in class 'Program'"
+
+
+test01.ci
+The compiler message was: "'run' method in 'Program' class can't have parameters"
+The 'cep' message is:      ""
+
+
+ER-SEM30.ci
+The compiler message was: "Trying to override method put of superclass with different type"
+The 'cep' message is:      "Method put of subclass B has a signature different from method inherited from superclass A"
+
+
+ER-SEM62.ci
+The compiler message was: "Trying to use a object that does not exist a. Maybe using 'self' can help!"
+The 'cep' message is:      "Identifier 'a' was not found"
+
+
+ER-SEM36.ci
+The compiler message was: "Trying to assign undefined types"
+The 'cep' message is:      "Expression expected in the right-hand side of assignment"
+
+
+ER-SIN37.ci
+The compiler message was: "Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr"
+The 'cep' message is:      "Expression expected"
+
+
+ER-SEM37.ci
+The compiler message was: "Class A or its superclasses have no public method named set:"
+The 'cep' message is:      "Method 'set' was not found in class 'A' or its superclasses"
+
+
+ER-SIN05.ci
+The compiler message was: "';' expected"
+The 'cep' message is:      "';' expected"
+
+
+ER-SIN62.ci
+The compiler message was: "'until' was expected"
+The 'cep' message is:      "'}' not expected before 'until'"
+
+
+ER-SIN21.ci
+The compiler message was: "';' expected"
+The 'cep' message is:      "';' expected"
+
+
+ER-SIN63.ci
+The compiler message was: "';' expected"
+The 'cep' message is:      "';' expected"
+
+
 ER-SEM15.ci
 The compiler message was: "If condition must be a valid boolean expression"
 The 'cep' message is:      "Operator '!' does not accepts 'int' values"
+
+
+ER-SEM09.ci
+The compiler message was: "AND only apply to boolean values"
+The 'cep' message is:      "type 'int' does not support operator '&&'"
 
 
 ER-SEM58.ci
@@ -240,6 +726,11 @@ The compiler message was: "';' expected"
 The 'cep' message is:      "Unknown character"
 
 
+ER-SEM28.ci
+The compiler message was: "Field with the name i has the same name as another member is class A"
+The 'cep' message is:      "Variable 'i' is being redeclared"
+
+
 ER-SEM04.ci
 The compiler message was: "Trying to assign incompatible types"
 The 'cep' message is:      "Type error: value of the right-hand side is not subtype of the variable of the left-hand side."
@@ -248,6 +739,11 @@ The 'cep' message is:      "Type error: value of the right-hand side is not subt
 ER-SEM14.ci
 The compiler message was: "Print or println parameter must be string or int"
 The 'cep' message is:      "Boolean expression not expected"
+
+
+ER-SEM27.ci
+The compiler message was: "Class A trying to extend itself"
+The 'cep' message is:      "Class 'A' is inheriting from itself"
 
 
 ER-SIN30.ci

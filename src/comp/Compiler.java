@@ -384,11 +384,11 @@ public class Compiler {
 
         } else if (lexer.token == Token.IDCOLON) {
             // keyword method. It has parameters
-            methodName = lexer.getStringValue().replace(":", "");
+            methodName = lexer.getStringValue();
             next();
             parameters = formalParamDec();
             if(parameters.size() == 0)
-            	error("Method " +methodName+ ": is expecting parameters");
+            	error("Method " +methodName+ " is expecting parameters");
             for (Field f: parameters){
                 if( symbolTable.getInLocal(f.getName()) == null ) {
                     symbolTable.putInLocal(f.getName(), f.getType());
@@ -408,7 +408,7 @@ public class Compiler {
             }
         }            
         
-        if(symbolTable.getCurrentClass().getName().equals("Program") && methodName.equals("run")) {
+        if(symbolTable.getCurrentClass().getName().equals("Program") && (methodName.equals("run") || methodName.equals("run:"))) {
         	if(parameters.size() != 0)
         		error("'run' method in 'Program' class can't have parameters");
         	if(t != Type.undefinedType)
@@ -842,7 +842,7 @@ public class Compiler {
             		error("Class " + classe.getName() + " doesn't extend another class");
             	if (lexer.token == Token.IDCOLON) {
             		if(parent != null) {
-            			currentMethod = parent.getPublicMethod(lexer.getStringValue().replace(":",""));
+            			currentMethod = parent.getPublicMethod(lexer.getStringValue());
             			if(currentMethod == null)
             				error("Superclass " +parent.getName()+" has no method named " + lexer.getStringValue());
             		}
@@ -851,7 +851,7 @@ public class Compiler {
             		if(currentMethod != null) {
             			String result = currentMethod.checkSignature(retorno);
             			if (!result.equals(""))
-            				error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
+            				error("Wrong usage of the method " + currentMethod.getName() + " " + result);
             			else
             				tipoPrimary = currentMethod.getType();
             		}
@@ -863,7 +863,7 @@ public class Compiler {
             			else {
             				String result = currentMethod.checkSignature(null);
             				if (!result.equals(""))
-            					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
+            					error("Wrong usage of the method " + currentMethod.getName() + " " + result);
             				else
             					tipoPrimary = currentMethod.getType();
             			}
@@ -896,7 +896,7 @@ public class Compiler {
 	                			else {
 	                				String result = currentMethod.checkSignature(null);
 	                				if (!result.equals(""))
-	                					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
+	                					error("Wrong usage of the method " + currentMethod.getName() + " " + result);
 	                				else
 	                					tipoPrimary = currentMethod.getType();
 	                			}
@@ -913,7 +913,7 @@ public class Compiler {
 	                			error("Trying to use a object that does not exist");
 	                		else {
 	                			classe = (CianetoClass) t;
-	                			currentMethod = classe.getMethod(lexer.getStringValue().replace(":",""));
+	                			currentMethod = classe.getMethod(lexer.getStringValue());
 	                			if(currentMethod == null)
 	                				error("Class "+classe.getName()+" or its superclasses have no public method named " + lexer.getStringValue());
 	                		}
@@ -952,7 +952,7 @@ public class Compiler {
         			error("An identifier: or identifier were expected after the self call");
         		} else if(lexer.token == Token.IDCOLON) { // chama metodo de self
         			if(classe != null) {
-            			currentMethod = classe.getMethod(lexer.getStringValue().replace(":",""));
+            			currentMethod = classe.getMethod(lexer.getStringValue());
             			if(currentMethod == null)
             				error("Class " +classe.getName()+ " has no method named " + lexer.getStringValue());
             		}
@@ -974,7 +974,7 @@ public class Compiler {
             			else if(currentMethod != null) {
             				String result = currentMethod.checkSignature(null);
             				if (!result.equals(""))
-            					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
+            					error("Wrong usage of the method " + currentMethod.getName() + " " + result);
             			}
         			}
         			next();
@@ -983,7 +983,7 @@ public class Compiler {
         				if(lexer.token != Token.IDCOLON && lexer.token != Token.ID) {
         					error("An identifier: or identifier were expected after the self.Id call");
         				} else {
-        					String memberName = lexer.getStringValue().replace(":","");
+        					String memberName = lexer.getStringValue();
         					if (lexer.token == Token.IDCOLON) { 
         						next();
         						ArrayList<Type> retorno = exprList();
@@ -998,7 +998,7 @@ public class Compiler {
         								else {
         									String result = currentMethod.checkSignature(retorno);
                 	            			if (!result.equals(""))
-                	            				error("Wrong usage of the method " + memberName + ": " + result);
+                	            				error("Wrong usage of the method " + memberName + " " + result);
                 	            			else
                 	            				tipoPrimary = currentMethod.getType();
         								}
@@ -1018,7 +1018,7 @@ public class Compiler {
         								else if(currentMethod != null){
         									String result = currentMethod.checkSignature(null);
                 	            			if (!result.equals(""))
-                	            				error("Wrong usage of the method " + memberName + ": " + result);
+                	            				error("Wrong usage of the method " + memberName + " " + result);
                 	            			else
                 	            				tipoPrimary = currentMethod.getType();
         								}
