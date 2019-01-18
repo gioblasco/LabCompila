@@ -388,7 +388,7 @@ public class Compiler {
             next();
             parameters = formalParamDec();
             if(parameters.size() == 0)
-            	error("Method " +methodName+ ": is expecting parameters");
+            	error("Method " +methodName+ " is expecting parameters");
             for (Field f: parameters){
                 if( symbolTable.getInLocal(f.getName()) == null ) {
                     symbolTable.putInLocal(f.getName(), f.getType());
@@ -896,7 +896,7 @@ public class Compiler {
 	                			else {
 	                				String result = currentMethod.checkSignature(null);
 	                				if (!result.equals(""))
-	                					error("Wrong usage of the method " + currentMethod.getName() + ": " + result);
+	                					error("Wrong usage of the method " + currentMethod.getName() + " " + result);
 	                				else
 	                					tipoPrimary = currentMethod.getType();
 	                			}
@@ -998,7 +998,7 @@ public class Compiler {
         								else {
         									String result = currentMethod.checkSignature(retorno);
                 	            			if (!result.equals(""))
-                	            				error("Wrong usage of the method " + memberName + ": " + result);
+                	            				error("Wrong usage of the method " + memberName + " " + result);
                 	            			else
                 	            				tipoPrimary = currentMethod.getType();
         								}
@@ -1018,7 +1018,7 @@ public class Compiler {
         								else if(currentMethod != null){
         									String result = currentMethod.checkSignature(null);
                 	            			if (!result.equals(""))
-                	            				error("Wrong usage of the method " + memberName + ": " + result);
+                	            				error("Wrong usage of the method " + memberName + " " + result);
                 	            			else
                 	            				tipoPrimary = currentMethod.getType();
         								}
