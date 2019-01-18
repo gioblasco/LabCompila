@@ -25,7 +25,7 @@ public class Lexer {
       }
 
 
-    private static final int MaxValueInteger = 2147483647;
+    private static final int MaxValueInteger = 2147483647; 
       // contains the keywords
     static private Hashtable<String, Token> keywordsTable;
 
