@@ -1,25 +1,33 @@
 Relatorio do Compilador
 
-0 de um total de 121 erros que deveriam ser sinalizados nao o foram (0%)
-2 erros foram sinalizados na linha errada (1%)
-1 erros foram sinalizados em 79 arquivos sem erro (1%)
+0 de um total de 134 erros que deveriam ser sinalizados nao o foram (0%)
+5 erros foram sinalizados na linha errada (3%)
+0 erros foram sinalizados em 66 arquivos sem erro (0%)
 Todos os erros que deveriam ter sido sinalizados o foram
 ######################################################
 Erros que foram sinalizados na linha errada:
+
+ER-SIN22.ci
+    correto:    10, ';' missing 
+    sinalizado: 11, ';' expected
 
 ER-SIN38.ci
     correto:    17, '}' expected (comp.Compiler.classDec())
     sinalizado: 19, Trying to use a object that does not exist end. Maybe using 'self' can help!
 
+ER-SIN20.ci
+    correto:    6, ';' missing 
+    sinalizado: 7, ';' expected
+
 ER-SEM78.ci
     correto:    15, Source code without a class 'Program' (comp.Compiler.program())
     sinalizado: 16, File must have a class called Program
 
-######################################################
-Erros que foram sinalizados mas nao deveriam ter sido:
+ER-SIN21.ci
+    correto:    9, ';' missing 
+    sinalizado: 10, ';' expected
 
-OK-FieldDec.ci, 20, Trying to use a object that does not exist i. Maybe using 'self' can help!
-
+O compilador nao sinalizou nenhum erro que nao deveria ter sinalizado
 ######################################################
 Em todos os testes abaixo, o compilador sinalizou o erro na linha correta (quando o teste tinha erros) ou nao sinalizou o erro (quando o teste NAO tinha erros). Mas eh necessario conferir se as mensagens emitidas pelo compilador sao compativeis com as mensagens de erro sugeridas pelas chamadas aos metaobjetos dos testes. 
 
@@ -38,6 +46,11 @@ The 'cep' message is:      "Method 'p' was not found in class 'Program' or its s
 ER-SIN59.ci
 The compiler message was: "Value must be assigned to some variable. It is not being used."
 The 'cep' message is:      "Statement expected"
+
+
+ER-SEM54.ci
+The compiler message was: "An overridden method should be preceded by 'override'"
+The 'cep' message is:      "'override' expected before overridden method"
 
 
 ER-LEX08.ci
@@ -65,9 +78,24 @@ The compiler message was: "A field must be declared private"
 The 'cep' message is:      "Attempt to declare public instance variable 'i'"
 
 
+ER-SEM29.ci
+The compiler message was: "Trying to override method put: of superclass with different signature."
+The 'cep' message is:      "Method 'put' of the subclass 'B' has a signature different from the same method of superclass 'A'"
+
+
+ER-SEM41.ci
+The compiler message was: "Only allowed to assign a class with another instance of the same class or nil value"
+The 'cep' message is:      "Type error: the type of the expression of the right-hand side is a basic type and the type of the variable of the left-hand side is a class"
+
+
 ER-SIN26.ci
 The compiler message was: "If condition must be a valid boolean expression"
 The 'cep' message is:      "Expression expected OR invalid sequence of symbols"
+
+
+er-sin100.ci
+The compiler message was: "Missing 'return' statement"
+The 'cep' message is:      "missing 'return' statement"
 
 
 ER-SIN01.ci
@@ -150,6 +178,11 @@ The compiler message was: "An overridden method should be preceded by 'override'
 The 'cep' message is:      "'override' expected before overridden method"
 
 
+er-sem100.ci
+The compiler message was: "Trying to use a object that does not exist error. Maybe using 'self' can help!"
+The 'cep' message is:      "Identifer 'error' was not found"
+
+
 ER-SEM19.ci
 The compiler message was: "Class Program not Found!"
 The 'cep' message is:      "Type 'Program' was not found"
@@ -167,7 +200,7 @@ The 'cep' message is:      "Missing identifier"
 
 ER-SIN35.ci
 The compiler message was: "'{' expected"
-The 'cep' message is:      "')' expected"
+The 'cep' message is:      "'{' expected"
 
 
 ER-SIN10.ci
@@ -205,9 +238,19 @@ The compiler message was: "Invalid Character: '#'"
 The 'cep' message is:      "Unknown character"
 
 
+ER-SIN43.ci
+The compiler message was: "'end' expected in class declaration"
+The 'cep' message is:      "function or field declaration expected"
+
+
 ER-SEM35.ci
 The compiler message was: "Illegal return statement. Method m shouldn't return anything"
 The 'cep' message is:      "Illegal 'return' statement. Method returns 'void'"
+
+
+ER-SIN12.ci
+The compiler message was: "Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr"
+The 'cep' message is:      "Expression expected"
 
 
 ER-SEM44.ci
@@ -255,6 +298,11 @@ The compiler message was: "Class x not Found!"
 The 'cep' message is:      "Identifier expected"
 
 
+er-sin101.ci
+The compiler message was: "Class n not Found!"
+The 'cep' message is:      "Type expected"
+
+
 ER-SIN32.ci
 The compiler message was: "A type was expected"
 The 'cep' message is:      "Type expected"
@@ -288,6 +336,12 @@ The 'cep' message is:      "'public', 'private', or '}' expected"
 ER-SIN11.ci
 The compiler message was: "Expected: BasicValue or (Expression) or !Factor or 'nil' or ObjectCreation or PrimaryExpr"
 The 'cep' message is:      "Missing 'Out.'"
+
+
+ER-SEM40.ci
+The compiler message was: "Wrong usage of the method 
+	Trying to use a parameter of type A that is not subclass of B"
+The 'cep' message is:      "Type error: the type of the real parameter is not subclass of the type of the formal parameter"
 
 
 ER-SIN09.ci
@@ -443,6 +497,11 @@ The 'cep' message is:      "Identifier expected"
 ER-SEM88.ci
 The compiler message was: "Repeat until condition must be boolean"
 The 'cep' message is:      "boolean expression expected in a repeat-until statement"
+
+
+ER-SIN19.ci
+The compiler message was: "';' expected"
+The 'cep' message is:      "';' missing"
 
 
 ER-SEM26.ci

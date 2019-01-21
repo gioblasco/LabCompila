@@ -50,9 +50,6 @@ public class Compiler {
                 }
                 classDec();
             } catch (CompilerError e) { 
-            	// TODO: se ocorre um erro, percorre o arquivo até encontrar outra classe
-            	// porém isso é estranho, exemplo: se a segunda classe utilizar um método da anterior
-            	// que foi declarado depois do erro, não vai encontrar o método (=()
                 // if there was an exception, there is a compilation error
                 thereWasAnError = true;
                 while (lexer.token != Token.CLASS && lexer.token != Token.EOF) {
@@ -567,7 +564,6 @@ public class Compiler {
                     assignExpr();
                 }
         }
-        // TODO: ERR-SIN18 - só percebe falta de ; na linha abaixo, o que é natural
         if (checkSemiColon) {
             check(Token.SEMICOLON, "';' expected");
             next();
@@ -1101,8 +1097,6 @@ public class Compiler {
     private void whileStat() {
         next();
         Type tipo = expr();
-        
-        // TODO: ERR-SIN38 -> segundo o teste, o erro devia ser falta de }, mas como não tem statement, dá erro de falta de statement 
         
         if(tipo != Type.booleanType)
         	error("While condition must be boolean");

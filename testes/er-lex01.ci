@@ -1,15 +1,15 @@
-﻿/*
+/*
 Vitor Mesquita Fogaça
 vitor.fogaca@outlook.com
 */
-      
+
 class Teste
     var Int n;
-	
+
     func get -> Int {
         return self.n;
     }
-	
+
     func set: Int n {
         self.n = n;
     }

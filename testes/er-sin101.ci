@@ -1,14 +1,16 @@
-﻿/*
+/*
 Vitor Mesquita Fogaça
 vitor.fogaca@outlook.com
 */
-      
-@cep(4, "missing 'return' statement", "missing 'return' statement");
+
+@cep(2, "missing type in variable declaration", "Type expected");
 class Teste
-    var Int n;
-    
-    func get -> Int { }
-    
+    var n;
+
+    func get -> Int {
+        return self.n;
+    }
+
     func set: Int n {
         self.n = n;
     }
@@ -17,7 +19,7 @@ end
 class Program
     func run {
         var Teste t;
-        var Int a;
+        var Teste a;
         t = Teste.new;
         a = In.readInt;
         t.set: a;
