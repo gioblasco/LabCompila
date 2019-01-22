@@ -305,7 +305,7 @@ public class Compiler {
             if(tempMethod == null)
             	tempMethod = classe.getPublicMethod().get(name);
         	if(tempField != null || tempMethod != null)
-        		error("Field with the name " +name+ " has the same name as another member is class " + classe.getName());
+        		error("Field with the name " +name+ " has the same name as another member in class " + classe.getName());
         	else
         		classe.getFieldList().put(name, addField);
         }
@@ -481,7 +481,7 @@ public class Compiler {
 
         next();
         
-        symbolTable.removeLocalIdent();
+        symbolTable.removeLocalIdent(); // apaga dados da hash local do método
         return method;
     }
 

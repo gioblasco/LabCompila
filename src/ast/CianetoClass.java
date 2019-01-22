@@ -31,7 +31,7 @@ public class CianetoClass extends Type {
 		this.parent = parent;
 	}
 	
-	public Method getMethod(String methodName) {
+	public Method getMethod(String methodName) { // retorna metodo publico ou privado dentro ou fora da classe
 		Method tempMethod;
 		tempMethod = this.privateMethodList.get(methodName);
 		if(tempMethod == null)
@@ -40,34 +40,29 @@ public class CianetoClass extends Type {
 			return tempMethod;
 		return (this.parent == null) ? null : this.parent.getPublicMethod(methodName);
 	}
-	public Method getParentPublicMethod(String methodName) {
-		if(this.parent == null)
-			return null;
-		return this.parent.getPublicMethod(methodName);
-	}
 	
-	public Method getPublicMethod(String methodName) {
+	public Method getPublicMethod(String methodName) { // retorna metodo público dentro ou fora da classe
 		Method tempMethod = this.publicMethodList.get(methodName);
 		if(tempMethod != null)
 			return tempMethod;
 		return (this.parent == null) ? null : this.parent.getPublicMethod(methodName);
 	}
 	
-	public boolean findParent(String className) {
+	public boolean findParent(String className) { // retorna se é superclasse ou não
 		if(this.getName().equals(className))
 			return true;
 		return (this.parent == null) ? false : this.parent.findParent(className);
 	}
 	
-	public Hashtable<String, Method> getPublicMethod() {
+	public Hashtable<String, Method> getPublicMethod() { // retorna hash inteira de metodos publicos
 		return this.publicMethodList; 
 	}
 
-	public Hashtable<String, Method> getPrivateMethod() {
+	public Hashtable<String, Method> getPrivateMethod() { // retorna hash inteira de metodos privados
 		return this.privateMethodList;
 	}
 	
-	public Hashtable<String, Field> getFieldList() {
+	public Hashtable<String, Field> getFieldList() { // retorna hash inteira de atributos
 		return fieldList;
 	}
 
