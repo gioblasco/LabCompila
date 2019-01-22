@@ -1,11 +1,15 @@
 Relatorio do Compilador
 
 0 de um total de 134 erros que deveriam ser sinalizados nao o foram (0%)
-5 erros foram sinalizados na linha errada (3%)
+7 erros foram sinalizados na linha errada (5%)
 0 erros foram sinalizados em 66 arquivos sem erro (0%)
 Todos os erros que deveriam ter sido sinalizados o foram
 ######################################################
 Erros que foram sinalizados na linha errada:
+
+ER-SIN59.ci
+    correto:    18, 'until' expected (comp.Compiler.repeatStat())
+    sinalizado: 17, Value must be assigned to some variable. It is not being used.
 
 ER-SIN22.ci
     correto:    10, ';' missing 
@@ -14,6 +18,10 @@ ER-SIN22.ci
 ER-SIN38.ci
     correto:    17, '}' expected (comp.Compiler.classDec())
     sinalizado: 19, Trying to use a object that does not exist end. Maybe using 'self' can help!
+
+er-sem100.ci
+    correto:    25, Identifer 'error' was not found 
+    sinalizado: 18, 'class' expected
 
 ER-SIN20.ci
     correto:    6, ';' missing 
@@ -41,11 +49,6 @@ The 'cep' message is:      "Method 'm' was not found in superclass 'B' or its su
 ER-SEM68.ci
 The compiler message was: "Class Program has no method or field named p"
 The 'cep' message is:      "Method 'p' was not found in class 'Program' or its superclasses"
-
-
-ER-SIN59.ci
-The compiler message was: "Value must be assigned to some variable. It is not being used."
-The 'cep' message is:      "Statement expected"
 
 
 ER-SEM54.ci
@@ -176,11 +179,6 @@ The 'cep' message is:      "')' expected"
 ER-SEM53.ci
 The compiler message was: "An overridden method should be preceded by 'override'"
 The 'cep' message is:      "'override' expected before overridden method"
-
-
-er-sem100.ci
-The compiler message was: "Trying to use a object that does not exist error. Maybe using 'self' can help!"
-The 'cep' message is:      "Identifer 'error' was not found"
 
 
 ER-SEM19.ci

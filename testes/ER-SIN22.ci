@@ -1,11 +1,11 @@
-@cep(9, "falta ';' apï¿½s a atribuiï¿½ï¿½o", "';' missing")
+@cep(9, "falta ';' após a atribuição", "';' missing")
 
 class Program
-
+  
     func run {
 
         var Int i;
-        In.readInt(i);
+        i = In.readInt;
         if 3 > 0 {
             i = 1        //#
         }
