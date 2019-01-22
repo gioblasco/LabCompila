@@ -272,14 +272,13 @@ public class Comp {
 
 		try {
 			numChRead = stream.read( input, 0, (int ) file.length() );
-			/* impede a leitura de alguns testes
 			if ( numChRead != file.length() ) {
 				System.out.println(numChRead + "\t" + file.length());
 				outError.println("Read error in file " + filename);
 				System.out.println("Read error in file " + filename);
 				stream.close();
 				return null;
-			}*/
+			}
 			stream.close();
 		} catch ( IOException e ) {
 			String msg = "Error reading file " + filename;
