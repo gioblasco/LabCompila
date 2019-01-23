@@ -537,7 +537,7 @@ public class Compiler {
                 break;
             case BREAK:
             	if(symbolTable.getLoopStat() == 0)
-            		error("'break' statament outside a 'while' statement");
+            		error("'break' statement outside a 'while' statement");
                 breakStat();
                 break;
             case SEMICOLON:
@@ -935,7 +935,7 @@ public class Compiler {
             } else {
             	Type t  =  symbolTable.getInLocal(identifier);
         		if(t == null || t == Type.undefinedType)
-        			error("Trying to use a object that does not exist " + identifier + ". Maybe using 'self' can help!");
+        			this.signalError.showError("Trying to use a object that does not exist " + identifier + ". Maybe using 'self' can help!", true);
         		else {
         			tipoPrimary = t;
         			this.canBeLeft = true; // um id (var) pode receber atribuição com assign
